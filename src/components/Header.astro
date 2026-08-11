@@ -14,7 +14,7 @@ const links = [
   data-header
   data-scrolled="false"
   data-menu-open="false"
-  class="group/header fixed inset-x-0 top-0 z-50 border-b border-white/20 transition-[background-color,border-color,backdrop-filter] duration-300 data-[scrolled=false]:bg-transparent data-[scrolled=true]:border-alabaster-200/40 data-[scrolled=true]:bg-white/70 data-[scrolled=true]:backdrop-blur-sm data-[menu-open=true]:border-transparent data-[menu-open=true]:bg-transparent data-[menu-open=true]:backdrop-blur-none"
+  class="group/header fixed inset-x-0 top-0 z-50 border-b border-white/20 transition-[background-color,border-color,backdrop-filter] duration-300 data-[scrolled=false]:bg-transparent data-[scrolled=true]:data-[menu-open=false]:border-alabaster-200/40 data-[scrolled=true]:data-[menu-open=false]:bg-white/70 data-[scrolled=true]:data-[menu-open=false]:backdrop-blur-sm data-[menu-open=true]:border-transparent data-[menu-open=true]:bg-cod-gray-950 data-[menu-open=true]:backdrop-blur-none"
 >
   <div
     class="relative z-20 mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 transition-colors duration-300 sm:px-6 lg:px-8"
@@ -110,15 +110,15 @@ const links = [
     </button>
   </div>
 
-  <!-- Full-screen mobile menu: dark overlay + blur -->
+  <!-- Full-screen mobile menu: solid overlay (must not sit under a blurred header containing block) -->
   <div
     id="mobile-nav"
     data-nav-panel
     data-open="false"
-    class="group/navpanel fixed inset-0 z-10 flex flex-col bg-cod-gray-950/75 backdrop-blur-xl transition-[opacity,visibility] duration-300 ease-out lg:hidden data-[open=false]:pointer-events-none data-[open=false]:invisible data-[open=false]:opacity-0 data-[open=true]:visible data-[open=true]:opacity-100"
+    class="group/navpanel fixed inset-0 z-10 flex h-dvh min-h-dvh w-full flex-col bg-cod-gray-950 transition-[opacity,visibility] duration-300 ease-out lg:hidden data-[open=false]:pointer-events-none data-[open=false]:invisible data-[open=false]:opacity-0 data-[open=true]:visible data-[open=true]:opacity-100"
   >
     <nav
-      class="mx-auto flex h-full w-full max-w-7xl flex-col justify-center gap-2 px-6 pb-16 pt-28 sm:px-8"
+      class="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-center gap-1 overflow-y-auto px-6 pb-16 pt-28 sm:px-8"
       aria-label="Móvil"
     >
       {
