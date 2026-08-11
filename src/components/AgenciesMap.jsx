@@ -128,29 +128,37 @@ function addAgencyMarkers(map, markersRef, setActiveId) {
 
 function AgencyList({ activeId, setActiveId }) {
   return (
-    <ul className="space-y-1.5 sm:space-y-2" role="list">
+    <ul
+      className="flex gap-2.5 overflow-x-auto overscroll-x-contain touch-pan-x snap-x snap-mandatory scrollbar-none max-lg:px-0.5 lg:flex-col lg:gap-0 lg:space-y-2 lg:overflow-x-visible lg:overflow-y-visible lg:snap-none lg:pb-0"
+      role="list"
+    >
       {agencies.map((agency) => {
         const active = agency.id === activeId;
         return (
-          <li key={agency.id}>
+          <li
+            key={agency.id}
+            className="w-[min(78vw,16.5rem)] shrink-0 snap-start lg:w-full lg:snap-align-none"
+          >
             <button
               type="button"
               data-agency-id={agency.id}
               onClick={() => setActiveId(agency.id)}
-              className={`w-full rounded-lg border p-3 text-left transition sm:p-4 ${
+              className={`flex h-full w-full flex-col rounded-xl border p-3 text-left transition sm:p-3.5 lg:rounded-lg lg:p-4 ${
                 active
-                  ? 'border-monza-600 bg-white/90'
-                  : 'border-transparent bg-white/55 hover:border-alabaster-200/80 hover:bg-white/75'
+                  ? 'border-monza-600 bg-white shadow-sm'
+                  : 'border-alabaster-200/70 bg-white/80 hover:border-alabaster-200 hover:bg-white lg:border-transparent lg:bg-white/55 lg:hover:border-alabaster-200/80 lg:hover:bg-white/75'
               }`}
             >
-              <div className="mb-0.5 flex items-start justify-between gap-2 sm:mb-1 sm:gap-3">
-                <h3 className="text-sm font-bold text-cod-gray-950 sm:text-base">{agency.name}</h3>
+              <div className="mb-1 flex flex-col gap-0.5 lg:mb-0.5 lg:flex-row lg:items-start lg:justify-between lg:gap-3">
+                <h3 className="line-clamp-2 text-sm font-bold text-cod-gray-950 sm:text-base">
+                  {agency.name}
+                </h3>
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-monza-600">
                   <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
                   {agency.municipality}
                 </span>
               </div>
-              <div className="space-y-1 text-sm text-cod-gray-600">
+              <div className="mt-auto space-y-1 text-xs text-cod-gray-600 sm:text-sm">
                 {agency.phone ? (
                   <p className="flex items-center gap-2">
                     <Phone className="size-3.5 shrink-0" aria-hidden="true" />
@@ -164,7 +172,7 @@ function AgencyList({ activeId, setActiveId }) {
                   </p>
                 ) : null}
                 {agency.email ? (
-                  <p className="flex items-center gap-2">
+                  <p className="flex min-w-0 items-center gap-2">
                     <Mail className="size-3.5 shrink-0" aria-hidden="true" />
                     <a
                       href={`mailto:${agency.email}`}
@@ -323,13 +331,21 @@ export default function AgenciesMap() {
     const list = listRef.current;
     const card = list?.querySelector(`[data-agency-id="${activeId}"]`);
     if (card instanceof HTMLElement && list instanceof HTMLElement) {
-      const cardRect = card.getBoundingClientRect();
-      const listRect = list.getBoundingClientRect();
+      if (isMobileViewport()) {
+        card.scrollIntoView({
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+          inline: 'center',
+          block: 'nearest',
+        });
+      } else {
+        const cardRect = card.getBoundingClientRect();
+        const listRect = list.getBoundingClientRect();
 
-      if (cardRect.top < listRect.top) {
-        list.scrollTop -= listRect.top - cardRect.top + 8;
-      } else if (cardRect.bottom > listRect.bottom) {
-        list.scrollTop += cardRect.bottom - listRect.bottom + 8;
+        if (cardRect.top < listRect.top) {
+          list.scrollTop -= listRect.top - cardRect.top + 8;
+        } else if (cardRect.bottom > listRect.bottom) {
+          list.scrollTop += cardRect.bottom - listRect.bottom + 8;
+        }
       }
     }
   }, [activeId, mapReady]);
@@ -337,7 +353,7 @@ export default function AgenciesMap() {
   return (
     <section
       id="agencias"
-      className="ava-agencies-map relative h-[100svh] min-h-160 w-full overflow-hidden bg-alabaster-100 lg:h-[min(88svh,780px)] lg:min-h-130"
+      className="ava-agencies-map relative h-svh min-h-160 w-full overflow-hidden bg-alabaster-100 lg:h-[min(88svh,780px)] lg:min-h-130"
     >
       <div
         ref={mapContainerRef}
@@ -346,15 +362,15 @@ export default function AgenciesMap() {
         aria-label="Mapa de agencias afiliadas en Puerto Rico"
       />
 
-      {/* Soft bottom fade: transparent → white */}
+      {/* Soft bottom fade — compact on mobile so the map stays dominant */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-48 bg-linear-to-b from-transparent to-white max-lg:h-[58%] sm:h-85 lg:h-36"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40 bg-linear-to-b from-transparent to-white max-lg:h-44 sm:h-48 lg:h-36"
         aria-hidden="true"
       />
 
-      {/* Mobile: tap to unlock map (above sheet); pins remain clickable */}
+      {/* Mobile: tap to unlock map (above carousel bar); pins remain clickable */}
       {!mapUnlocked && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[58%] z-10 flex items-center justify-center bg-cod-gray-950/30 px-6 text-center lg:hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-44 z-10 flex items-center justify-center bg-cod-gray-950/25 px-6 text-center lg:hidden">
           <button
             type="button"
             className="pointer-events-auto rounded-full border border-white/25 bg-cod-gray-950/75 px-5 py-3 text-sm font-semibold tracking-wide text-white"
@@ -377,35 +393,26 @@ export default function AgenciesMap() {
         </button>
       )}
 
-      {/* Glass panel: sticky title + scrollable agency list */}
+      {/* Glass panel: compact horizontal carousel on mobile, vertical list on desktop */}
       <aside
-        className="absolute z-20 flex flex-col overflow-hidden border border-white/40 bg-white/70 backdrop-blur-sm max-lg:inset-x-0 max-lg:bottom-0 max-lg:h-[58%] max-lg:max-h-[58%] max-lg:rounded-t-2xl max-lg:border-b-0 max-lg:px-3 max-lg:pt-1.5 max-lg:pb-3 lg:top-24 lg:bottom-6 lg:left-6 lg:h-auto lg:max-h-none lg:w-[min(24rem,calc(100%-3rem))] lg:rounded-2xl lg:p-4"
+        className="absolute z-20 flex flex-col overflow-hidden border border-white/40 bg-white/80 backdrop-blur-sm max-lg:inset-x-0 max-lg:bottom-0 max-lg:h-auto max-lg:max-h-none max-lg:rounded-t-2xl max-lg:border-b-0 max-lg:px-3 max-lg:pt-2 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:top-24 lg:bottom-6 lg:left-6 lg:h-auto lg:max-h-none lg:w-[min(24rem,calc(100%-3rem))] lg:rounded-2xl lg:bg-white/70 lg:p-4"
         aria-label="Red de agencias aliadas"
       >
-        <div
-          className="mx-auto mb-1.5 h-1 w-10 shrink-0 rounded-full bg-cod-gray-300/80 lg:hidden"
-          aria-hidden="true"
-        />
-        <header className="mb-2 shrink-0 border-b border-cod-gray-200/50 px-1 pb-2 lg:mb-3 lg:pb-3">
-          <h2 className="mb-1 text-lg font-extrabold tracking-tight text-cod-gray-950 sm:mb-2 sm:text-2xl lg:text-2xl">
+        <header className="mb-2 shrink-0 px-0.5 lg:mb-3 lg:border-b lg:border-cod-gray-200/50 lg:pb-3">
+          <h2 className="text-base font-extrabold tracking-tight text-cod-gray-950 sm:text-lg lg:mb-2 lg:text-2xl">
             Red de Agencias Aliadas
           </h2>
-          <p className="text-xs leading-snug text-cod-gray-700 sm:text-sm sm:leading-relaxed lg:text-sm">
-            <span className="lg:hidden">
-              Elige una agencia aliada para planificar tu viaje con el respaldo de AVA Tours.
-            </span>
-            <span className="hidden lg:inline">
-              ¡Contáctate con tu agencia de viajes aliada! Nuestra red de agencias está preparada para
-              ayudarte a seleccionar el destino ideal, aprovechar las mejores ofertas de viajes y
-              planificar unas vacaciones inolvidables con el respaldo de AVA Tours.
-            </span>
+          <p className="hidden text-sm leading-relaxed text-cod-gray-700 lg:block">
+            ¡Contáctate con tu agencia de viajes aliada! Nuestra red de agencias está preparada para
+            ayudarte a seleccionar el destino ideal, aprovechar las mejores ofertas de viajes y
+            planificar unas vacaciones inolvidables con el respaldo de AVA Tours.
           </p>
         </header>
         <div
           ref={listRef}
           data-agency-list
           data-lenis-prevent
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-0.5"
+          className="min-h-0 w-full lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-0.5"
         >
           <AgencyList activeId={activeId} setActiveId={setActiveId} />
         </div>
@@ -423,7 +430,10 @@ export default function AgenciesMap() {
           }
           .ava-agencies-map .maplibregl-ctrl-bottom-right,
           .ava-agencies-map .maplibregl-ctrl-bottom-left {
-            margin-bottom: 60%;
+            margin-bottom: 11.5rem;
+          }
+          .ava-agencies-map .maplibregl-popup {
+            max-width: min(260px, calc(100vw - 2rem)) !important;
           }
         }
         .ava-agencies-map .maplibregl-cooperative-gesture-screen {
