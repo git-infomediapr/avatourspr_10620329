@@ -73,20 +73,39 @@ function createMarkerElement() {
   const el = document.createElement('button');
   el.type = 'button';
   el.className = 'ava-map-pin';
+  // MapLibre CSS uses .maplibregl-marker { position:absolute; top:0; left:0 }.
+  // Do NOT set position:relative here — it overrides that and stacks markers in flow
+  // (each pin ends up offset by ~width * index from the popup/lngLat).
   el.style.cssText = `
+    width: 18px;
+    height: 18px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  `;
+  el.setAttribute('aria-label', 'Ubicación de agencia');
+
+  const dot = document.createElement('span');
+  dot.className = 'ava-map-pin-dot';
+  dot.setAttribute('aria-hidden', 'true');
+  dot.style.cssText = `
+    display: block;
     width: 18px;
     height: 18px;
     border-radius: 9999px;
     border: 2px solid #fff;
     background: ${MONZA_600};
     box-shadow: 0 2px 8px rgba(0,0,0,.35);
-    cursor: pointer;
-    padding: 0;
     transition: transform .2s ease;
-    position: relative;
-    z-index: 2;
+    transform-origin: center center;
   `;
-  el.setAttribute('aria-label', 'Ubicación de agencia');
+  el.appendChild(dot);
   return el;
 }
 
@@ -319,7 +338,11 @@ export default function AgenciesMap() {
 
     Object.entries(markersRef.current).forEach(([id, { marker, el }]) => {
       const isActive = id === activeId;
-      el.style.transform = `scale(${isActive ? 1.35 : 1})`;
+      // Scale the inner dot only — never el.style.transform (MapLibre owns it).
+      const dot = el.querySelector('.ava-map-pin-dot');
+      if (dot instanceof HTMLElement) {
+        dot.style.transform = `scale(${isActive ? 1.35 : 1})`;
+      }
       const popup = marker.getPopup();
       if (isActive) {
         if (!popup.isOpen()) marker.togglePopup();
