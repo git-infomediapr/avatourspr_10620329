@@ -408,7 +408,7 @@ export default function AgenciesMap() {
       {mapUnlocked && (
         <button
           type="button"
-          className="absolute top-24 right-3 z-30 flex size-11 items-center justify-center rounded-full border border-alabaster-200/60 bg-white/80 text-cod-gray-900 backdrop-blur-sm lg:hidden"
+          className="absolute top-24 left-3 z-30 flex size-11 items-center justify-center rounded-full border border-alabaster-200/60 bg-white/80 text-cod-gray-900 shadow-sm backdrop-blur-sm lg:hidden"
           onClick={() => lockMap()}
           aria-label="Desactivar navegación del mapa"
         >
