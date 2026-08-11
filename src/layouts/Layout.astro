@@ -1,23 +1,127 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import '../styles/global.css';
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const site = Astro.site ?? new URL('https://avatours.pr');
+const canonicalURL = new URL(Astro.url.pathname, site);
+
+const {
+  title = 'Mayorista de Viajes en Puerto Rico | AVA Tours',
+  description =
+    'Mayorista de viajes en Puerto Rico con paquetes vacacionales, cruceros y excursiones internacionales. Descubre las mejores ofertas y encuentra tu agencia aliada.',
+  image = '/destinos/1786375133568-tx1cvre.webp',
+} = Astro.props;
+
+const ogImage = new URL(image, site).href;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${site.origin}/#organization`,
+      name: 'AVA Tours',
+      url: site.origin,
+      logo: new URL('/logo.png', site).href,
+      email: 'avatoursmarketing@gmail.com',
+      telephone: '+1-787-692-9896',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'L5 Calle Santa María Residencial Bairoa',
+        addressLocality: 'Caguas',
+        addressRegion: 'PR',
+        postalCode: '00725',
+        addressCountry: 'PR',
+      },
+      sameAs: [
+        'https://www.facebook.com/agenciasdeviajesaliadas',
+        'https://www.instagram.com/a.v.a.tours/',
+        'https://infopaginas.com/b/caguas/ava-tours',
+      ],
+    },
+    {
+      '@type': 'TravelAgency',
+      '@id': `${site.origin}/#travelagency`,
+      name: 'AVA Tours',
+      description,
+      url: site.origin,
+      image: ogImage,
+      telephone: '+1-787-692-9896',
+      email: 'avatoursmarketing@gmail.com',
+      priceRange: '$$',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'L5 Calle Santa María Residencial Bairoa',
+        addressLocality: 'Caguas',
+        addressRegion: 'PR',
+        postalCode: '00725',
+        addressCountry: 'PR',
+      },
+      areaServed: {
+        '@type': 'AdministrativeArea',
+        name: 'Puerto Rico',
+      },
+      parentOrganization: { '@id': `${site.origin}/#organization` },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${site.origin}/#website`,
+      url: site.origin,
+      name: 'AVA Tours',
+      description,
+      publisher: { '@id': `${site.origin}/#organization` },
+      inLanguage: 'es-PR',
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
+    <meta name="theme-color" content="#d31224" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="es_PR" />
+    <meta property="og:site_name" content="AVA Tours" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://images.pexels.com" />
+    <meta name="generator" content={Astro.generator} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body class="min-h-screen overflow-x-hidden">
+    <slot />
+    <script>
+      import '../scripts/motion.ts';
+    </script>
+  </body>
+</html>

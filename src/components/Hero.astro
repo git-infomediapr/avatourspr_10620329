@@ -1,0 +1,35 @@
+---
+import HeroMedia from './HeroMedia.jsx';
+---
+
+<section id="inicio" data-hero class="relative flex min-h-screen items-end overflow-hidden">
+  <HeroMedia client:load />
+
+  <div class="relative z-10 mx-auto w-full max-w-7xl px-4 pt-28 pb-[13.5rem] sm:px-6 sm:pt-32 sm:pb-48 lg:px-8 lg:pb-28">
+    <div class="max-w-3xl lg:max-w-2xl xl:max-w-3xl">
+      <p
+        data-hero-el
+        class="mb-4 text-xs font-semibold tracking-[0.28em] text-white/90 uppercase sm:text-sm"
+      >
+        Mayorista de Viajes en Puerto Rico
+      </p>
+      <h1
+        data-hero-el
+        class="mb-4 text-6xl font-black tracking-tight text-white sm:text-7xl lg:text-8xl"
+      >
+        AVA Tours
+      </h1>
+      <p data-hero-el class="mb-8 max-w-xl text-base text-white/85 sm:text-lg">
+        Paquetes vacacionales, cruceros y experiencias con el respaldo de nuestra red de agencias
+        afiliadas.
+      </p>
+      <a
+        data-hero-el
+        href="tel:+1-787-692-9896"
+        class="inline-flex items-center justify-center rounded-full bg-monza-600 px-8 py-3.5 text-sm font-bold tracking-wide text-white uppercase transition hover:bg-monza-700"
+      >
+        Contáctanos
+      </a>
+    </div>
+  </div>
+</section>

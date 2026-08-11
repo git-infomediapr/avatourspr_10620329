@@ -1,0 +1,51 @@
+export const destinations = [
+  {
+    id: 'argentina-iguazu',
+    country: 'Argentina',
+    title: 'Cataratas del Iguazú',
+    subtitle: 'Una de las maravillas naturales del mundo, entre selva y cascadas.',
+    image: '/destinos/1786375133568-tx1cvre.webp',
+  },
+  {
+    id: 'croatia-dubrovnik',
+    country: 'Croacia',
+    title: 'Dubrovnik',
+    subtitle: 'Murallas históricas y el azul intenso del Adriático.',
+    image: '/destinos/1786375134742-z6pfdlu.webp',
+  },
+  {
+    id: 'italy-venice',
+    country: 'Italia',
+    title: 'Gran Canal de Venecia',
+    subtitle: 'Atardeceres dorados sobre el canal más icónico de Europa.',
+    image: '/destinos/1786375134997-lh8bxbq.webp',
+  },
+  {
+    id: 'japan-fuji',
+    country: 'Japón',
+    title: 'Monte Fuji & Pagoda Chureito',
+    subtitle: 'El símbolo de Japón desde Fujiyoshida, en calma y majestad.',
+    image: '/destinos/1786375135592-e7eab97.webp',
+  },
+  {
+    id: 'mexico-chichen',
+    country: 'México',
+    title: 'Chichén Itzá',
+    subtitle: 'La pirámide de Kukulcán, legado maya patrimonio de la humanidad.',
+    image: '/destinos/1786375135788-lt5b1g7.webp',
+  },
+  {
+    id: 'poland-warsaw',
+    country: 'Polonia',
+    title: 'Varsovia · Stare Miasto',
+    subtitle: 'Plaza del Castillo y la Columna de Segismundo al atardecer.',
+    image: '/destinos/1786375135989-0mqdvoa.webp',
+  },
+  {
+    id: 'switzerland-alps',
+    country: 'Suiza',
+    title: 'Pueblo alpino',
+    subtitle: 'Chalets de madera, flores y picos nevados en los Alpes.',
+    image: '/destinos/1786375136186-i1rj8wd.webp',
+  },
+];

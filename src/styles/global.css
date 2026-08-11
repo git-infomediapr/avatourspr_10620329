@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand red — Monza */
+  --color-monza-50: #feeded;
+  --color-monza-100: #fed4d5;
+  --color-monza-200: #fdadaf;
+  --color-monza-300: #fc878a;
+  --color-monza-400: #fc5b62;
+  --color-monza-500: #f8172c;
+  --color-monza-600: #d31224;
+  --color-monza-700: #ad0d1c;
+  --color-monza-800: #7c0611;
+  --color-monza-900: #470206;
+  --color-monza-950: #2c0102;
+
+  /* Ink / neutrals — Cod Gray */
+  --color-cod-gray-50: #f1f1f1;
+  --color-cod-gray-100: #dbdbdb;
+  --color-cod-gray-200: #bababa;
+  --color-cod-gray-300: #9d9d9d;
+  --color-cod-gray-400: #838383;
+  --color-cod-gray-500: #6b6b6b;
+  --color-cod-gray-600: #545454;
+  --color-cod-gray-700: #3f3f3f;
+  --color-cod-gray-800: #2c2c2c;
+  --color-cod-gray-900: #1a1a1a;
+  --color-cod-gray-950: #0a0a0a;
+
+  /* Surfaces — Alabaster */
+  --color-alabaster-50: #f9fafb;
+  --color-alabaster-100: #f1f3f5;
+  --color-alabaster-200: #d8dee5;
+  --color-alabaster-300: #bac6d2;
+  --color-alabaster-400: #9aacbc;
+  --color-alabaster-500: #81909e;
+  --color-alabaster-600: #67737e;
+  --color-alabaster-700: #4d565f;
+  --color-alabaster-800: #333a40;
+  --color-alabaster-900: #1b1f23;
+  --color-alabaster-950: #0e1114;
+}
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    @apply bg-white font-sans text-cod-gray-900 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-monza-600;
+  }
+}
+
+@layer utilities {
+  .motion-ready [data-reveal],
+  .motion-ready [data-hero-el] {
+    visibility: hidden;
+  }
+}

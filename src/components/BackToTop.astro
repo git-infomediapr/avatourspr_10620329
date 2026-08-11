@@ -1,0 +1,13 @@
+---
+import { ArrowUp } from '@lucide/astro';
+---
+
+<button
+  type="button"
+  data-back-to-top
+  data-visible="false"
+  class="fixed right-5 bottom-5 z-50 inline-flex size-12 items-center justify-center rounded-full bg-monza-600 text-white shadow-lg transition duration-300 hover:bg-monza-700 data-[visible=false]:pointer-events-none data-[visible=false]:translate-y-3 data-[visible=false]:opacity-0 data-[visible=true]:translate-y-0 data-[visible=true]:opacity-100"
+  aria-label="Volver arriba"
+>
+  <ArrowUp class="size-5" aria-hidden="true" />
+</button>

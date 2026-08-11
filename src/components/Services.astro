@@ -1,0 +1,8 @@
+---
+import ServicesPanel from './ServicesPanel';
+import { services } from '../data/services.js';
+---
+
+<section id="servicios" class="relative bg-cod-gray-950">
+  <ServicesPanel client:visible services={services} />
+</section>

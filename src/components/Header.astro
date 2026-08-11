@@ -1,0 +1,201 @@
+---
+import { Menu, X, Phone } from '@lucide/astro';
+
+const links = [
+  { href: '#inicio', label: 'Inicio' },
+  { href: '#conocenos', label: 'Conócenos' },
+  { href: '#servicios', label: 'Servicios' },
+  { href: '#agencias', label: 'Agencias' },
+  { href: '#contacto', label: 'Contacto' },
+];
+---
+
+<header
+  data-header
+  data-scrolled="false"
+  data-menu-open="false"
+  class="group/header fixed inset-x-0 top-0 z-50 border-b border-white/20 transition-[background-color,border-color,backdrop-filter] duration-300 data-[scrolled=false]:bg-transparent data-[scrolled=true]:border-alabaster-200/40 data-[scrolled=true]:bg-white/70 data-[scrolled=true]:backdrop-blur-sm data-[menu-open=true]:border-transparent data-[menu-open=true]:bg-transparent data-[menu-open=true]:backdrop-blur-none"
+>
+  <div
+    class="relative z-20 mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 transition-colors duration-300 sm:px-6 lg:px-8"
+    data-header-inner
+  >
+    <a href="#inicio" class="relative z-10 block shrink-0" aria-label="AVA Tours - Inicio">
+      <img
+        src="/logo-white.png"
+        alt="AVA Tours"
+        width="160"
+        height="48"
+        class="h-10 w-auto object-contain drop-shadow-sm transition-opacity duration-300 sm:h-12 group-data-[scrolled=true]/header:pointer-events-none group-data-[scrolled=true]/header:opacity-0 group-data-[menu-open=true]/header:pointer-events-auto group-data-[menu-open=true]/header:opacity-100"
+      />
+      <img
+        src="/logo.png"
+        alt=""
+        width="160"
+        height="48"
+        aria-hidden="true"
+        class="pointer-events-none absolute top-0 left-0 h-10 w-auto object-contain opacity-0 drop-shadow-sm transition-opacity duration-300 sm:h-12 group-data-[scrolled=true]/header:opacity-100 group-data-[menu-open=true]/header:opacity-0"
+      />
+    </a>
+
+    <nav class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex" aria-label="Principal">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            data-nav-link
+            data-active={link.href === '#inicio' ? 'true' : 'false'}
+            class="relative px-3 py-2 text-xs font-semibold tracking-[0.18em] uppercase transition-colors"
+          >
+            <span
+              class="pointer-events-none absolute top-1/2 left-0 h-7 w-1 -translate-y-1/2 rounded-full bg-monza-600 opacity-0 transition-opacity"
+              data-nav-indicator
+              aria-hidden="true"
+            />
+            <span class="pl-2">{link.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="hidden items-center gap-3 lg:flex">
+      <a
+        href="tel:+1-787-692-9896"
+        class="inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-monza-400"
+        data-header-phone
+      >
+        <Phone class="size-4" aria-hidden="true" />
+        +1-787-692-9896
+      </a>
+      <a
+        href="https://www.facebook.com/agenciasdeviajesaliadas"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-white transition-colors hover:text-monza-400"
+        aria-label="Facebook"
+        data-header-icon
+      >
+        <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"
+          ><path
+            d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.5V12H17l-.4 3h-2.7v7A10 10 0 0 0 22 12z"
+          ></path></svg
+        >
+      </a>
+      <a
+        href="https://www.instagram.com/a.v.a.tours/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-white transition-colors hover:text-monza-400"
+        aria-label="Instagram"
+        data-header-icon
+      >
+        <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"
+          ><path
+            d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm11 1.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"
+          ></path></svg
+        >
+      </a>
+    </div>
+
+    <button
+      type="button"
+      class="relative z-20 inline-flex size-11 items-center justify-center rounded-lg text-white lg:hidden"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="mobile-nav"
+      aria-label="Abrir menú"
+    >
+      <Menu class="size-6" data-icon-open />
+      <X class="hidden size-6" data-icon-close />
+    </button>
+  </div>
+
+  <!-- Full-screen mobile menu: dark overlay + blur -->
+  <div
+    id="mobile-nav"
+    data-nav-panel
+    data-open="false"
+    class="group/navpanel fixed inset-0 z-10 flex flex-col bg-cod-gray-950/75 backdrop-blur-xl transition-[opacity,visibility] duration-300 ease-out lg:hidden data-[open=false]:pointer-events-none data-[open=false]:invisible data-[open=false]:opacity-0 data-[open=true]:visible data-[open=true]:opacity-100"
+  >
+    <nav
+      class="mx-auto flex h-full w-full max-w-7xl flex-col justify-center gap-2 px-6 pb-16 pt-28 sm:px-8"
+      aria-label="Móvil"
+    >
+      {
+        links.map((link, i) => (
+          <a
+            href={link.href}
+            class="translate-y-3 rounded-lg px-2 py-3 text-3xl font-extrabold tracking-tight text-white opacity-0 transition-all duration-300 group-data-[open=true]/navpanel:translate-y-0 group-data-[open=true]/navpanel:opacity-100 hover:text-monza-400"
+            style={`transition-delay: ${80 + i * 45}ms`}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a
+        href="tel:+1-787-692-9896"
+        class="mt-8 inline-flex max-w-xs items-center justify-center gap-2 rounded-full bg-monza-600 px-6 py-3.5 text-sm font-bold text-white opacity-0 transition-all duration-300 delay-300 group-data-[open=true]/navpanel:opacity-100 hover:bg-monza-700"
+      >
+        <Phone class="size-4" aria-hidden="true" />
+        +1-787-692-9896
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector('[data-header]');
+  const phone = document.querySelector('[data-header-phone]');
+  const icons = document.querySelectorAll('[data-header-icon]');
+  const toggle = document.querySelector('[data-nav-toggle]');
+  const openIcon = document.querySelector('[data-icon-open]');
+  const closeIcon = document.querySelector('[data-icon-close]');
+  const navLinks = document.querySelectorAll('[data-nav-link]');
+
+  const syncHeaderChrome = () => {
+    const scrolled = header?.getAttribute('data-scrolled') === 'true';
+    const menuOpen = header?.getAttribute('data-menu-open') === 'true';
+    const lightChrome = !scrolled || menuOpen;
+
+    phone?.classList.toggle('text-white', lightChrome);
+    phone?.classList.toggle('text-cod-gray-900', !lightChrome);
+    phone?.classList.toggle('hover:text-monza-400', lightChrome);
+    phone?.classList.toggle('hover:text-monza-600', !lightChrome);
+    icons.forEach((icon) => {
+      icon.classList.toggle('text-white', lightChrome);
+      icon.classList.toggle('text-cod-gray-900', !lightChrome);
+      icon.classList.toggle('hover:text-monza-400', lightChrome);
+      icon.classList.toggle('hover:text-monza-600', !lightChrome);
+    });
+    toggle?.classList.toggle('text-white', lightChrome);
+    toggle?.classList.toggle('text-cod-gray-900', !lightChrome);
+    navLinks.forEach((link) => {
+      const active = link.getAttribute('data-active') === 'true';
+      link.classList.toggle('text-white', lightChrome && !active);
+      link.classList.toggle('text-cod-gray-900', !lightChrome && !active);
+      link.classList.toggle('text-monza-400', active);
+      const indicator = link.querySelector('[data-nav-indicator]');
+      indicator?.classList.toggle('opacity-100', active);
+      indicator?.classList.toggle('opacity-0', !active);
+    });
+  };
+
+  const observer = new MutationObserver(syncHeaderChrome);
+  if (header) {
+    observer.observe(header, {
+      attributes: true,
+      attributeFilter: ['data-scrolled', 'data-menu-open'],
+    });
+  }
+  syncHeaderChrome();
+
+  const syncToggleIcons = () => {
+    const open = toggle?.getAttribute('aria-expanded') === 'true';
+    openIcon?.classList.toggle('hidden', open);
+    closeIcon?.classList.toggle('hidden', !open);
+  };
+  if (toggle) {
+    const mo = new MutationObserver(syncToggleIcons);
+    mo.observe(toggle, { attributes: true, attributeFilter: ['aria-expanded'] });
+  }
+</script>

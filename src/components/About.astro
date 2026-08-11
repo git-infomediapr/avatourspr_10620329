@@ -1,0 +1,166 @@
+---
+import { MapPin, Plane } from '@lucide/astro';
+import ImageReveal from './ImageReveal';
+
+const aboutImages = {
+  left: 'https://images.caribemedia.net/public/Infopaginas/ava-tours/1786375134532-iwbw2ym.webp',
+  middle:
+    'https://images.caribemedia.net/public/Infopaginas/ava-tours/1786375136186-i1rj8wd.webp',
+  right: 'https://images.caribemedia.net/public/Infopaginas/ava-tours/1786384906076-y4wo3di.webp',
+};
+
+/**
+ * Diagonal dual-loop route: top-left → bottom-right
+ * Same path is used for stroke (visible) and MotionPath (plane follows exactly).
+ */
+const flightRoute =
+  'M 48 56 C 160 48 220 140 290 220 C 320 40 560 16 580 210 C 590 310 420 350 390 230 C 370 160 480 140 620 230 C 760 340 820 280 880 380 C 950 600 720 670 700 490 C 690 400 860 380 980 510 C 1060 600 1120 700 1156 748';
+
+/** Path end in viewBox space — used to place the pin outside the stretched SVG */
+const flightEnd = { x: 1156, y: 748, vbW: 1200, vbH: 800 };
+const pinLeft = `${(flightEnd.x / flightEnd.vbW) * 100}%`;
+const pinTop = `${(flightEnd.y / flightEnd.vbH) * 100}%`;
+---
+
+<section id="conocenos" class="relative overflow-x-clip bg-alabaster-50 py-20 lg:py-28">
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-monza-200 to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+
+  <!-- Desktop: full-section flight path -->
+  <div
+    data-flight-path="desktop"
+    class="pointer-events-none absolute inset-0 z-0 hidden text-monza-600/35 lg:block"
+    aria-hidden="true"
+  >
+    <svg
+      class="absolute inset-0 h-full w-full"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="none"
+      fill="none"
+    >
+      <path
+        data-flight-route
+        d={flightRoute}
+        stroke="currentColor"
+        stroke-width="2.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="8 12"
+      />
+    </svg>
+
+    <div
+      data-flight-pin
+      class="absolute z-10 text-monza-600/50"
+      style={`left: ${pinLeft}; top: ${pinTop}; transform: translate(-50%, -100%);`}
+    >
+      <MapPin class="size-9 sm:size-10 lg:size-11" fill="currentColor" stroke-width={1.75} />
+    </div>
+
+    <div
+      data-flight-plane
+      class="absolute top-0 left-0 z-20 text-monza-600/55 will-change-transform"
+    >
+      <Plane class="size-8 rotate-45 sm:size-9 lg:size-10" stroke-width={2.25} />
+    </div>
+  </div>
+
+  <div
+    class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:px-8 xl:gap-16"
+  >
+    <div data-reveal class="relative z-10 min-w-0 max-w-xl lg:max-w-none">
+      <p
+        class="mb-4 text-xs font-semibold tracking-[0.28em] text-monza-600 uppercase sm:text-[0.8rem]"
+      >
+        Desde 2012 · Licencia MVE-47
+      </p>
+      <h2
+        class="mb-6 max-w-[12ch] text-4xl font-extrabold tracking-tight text-cod-gray-950 sm:text-5xl lg:text-[3.25rem] lg:leading-[1.05]"
+      >
+        Conócenos
+      </h2>
+      <div class="mb-8 h-1 w-14 rounded-full bg-monza-600" aria-hidden="true"></div>
+      <div class="space-y-5 text-base leading-relaxed text-cod-gray-700 sm:text-lg sm:leading-relaxed">
+        <p>
+          En AVA Tours somos una corporación puertorriqueña de mayoristas de viajes, autorizada bajo
+          la Licencia MVE-47 de la Compañía de Turismo de Puerto Rico. Desde el 2012 trabajamos de la
+          mano con agencias de viajes, operadores turísticos, hoteles y proveedores internacionales
+          para ofrecer paquetes vacacionales, cruceros, excursiones internacionales y experiencias de
+          viaje diseñadas para todo tipo de viajeros.
+        </p>
+        <p>
+          A través de nuestra red de agencias afiliadas, brindamos acceso a tarifas competitivas,
+          productos exclusivos y el respaldo de un equipo con amplia experiencia en la industria
+          turística. Gracias a nuestras alianzas estratégicas con proveedores alrededor del mundo,
+          ayudamos a que más personas disfruten de vacaciones inolvidables con la confianza y el
+          servicio que nos distinguen.
+        </p>
+      </div>
+    </div>
+
+    <div class="relative z-10 min-w-0 overflow-visible lg:min-h-112 xl:min-h-120">
+      <!-- Mobile only: flight path scoped to images column -->
+      <div
+        data-flight-path="mobile"
+        class="pointer-events-none absolute inset-0 z-0 text-monza-600/35 lg:hidden"
+        aria-hidden="true"
+      >
+        <svg
+          class="absolute inset-0 h-full w-full"
+          viewBox="0 0 1200 800"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <path
+            data-flight-route
+            d={flightRoute}
+            stroke="currentColor"
+            stroke-width="2.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="8 12"
+          />
+        </svg>
+
+        <div
+          data-flight-pin
+          class="absolute z-10 text-monza-600/50"
+          style={`left: ${pinLeft}; top: ${pinTop}; transform: translate(-50%, -100%);`}
+        >
+          <MapPin class="size-9 sm:size-10" fill="currentColor" stroke-width={1.75} />
+        </div>
+
+        <div
+          data-flight-plane
+          class="absolute top-0 left-0 z-20 text-monza-600/55 will-change-transform"
+        >
+          <Plane class="size-8 rotate-45 sm:size-9" stroke-width={2.25} />
+        </div>
+      </div>
+
+      <img
+        src="/WorldMap.svg"
+        alt=""
+        width="1440"
+        height="560"
+        decoding="async"
+        aria-hidden="true"
+        class="pointer-events-none absolute top-1/2 left-1/2 z-0 w-[135%] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.16] select-none sm:w-[145%] sm:opacity-[0.18] lg:w-[155%]"
+      />
+      <div class="relative z-10">
+        <ImageReveal
+          client:visible
+          leftImage={aboutImages.left}
+          middleImage={aboutImages.middle}
+          rightImage={aboutImages.right}
+          leftAlt="AVA Tours — experiencia de viaje"
+          middleAlt="AVA Tours — destino alpino"
+          rightAlt="AVA Tours — destino destacado"
+        />
+      </div>
+    </div>
+  </div>
+</section>
