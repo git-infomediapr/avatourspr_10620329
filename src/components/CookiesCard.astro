@@ -1,0 +1,169 @@
+---
+/**
+ * Cookie consent UI — IDs and script contract must stay compatible with GTMConsent.astro
+ * (#popup, #close-btn, #action-btn, cookieConsentAccept / cookieConsentReject).
+ */
+---
+
+<div id="popup-root" class="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-4 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md sm:p-0">
+  <aside
+    id="popup"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="cookie-title"
+    aria-describedby="cookie-desc"
+    class="pointer-events-auto hidden w-full overflow-hidden rounded-2xl border border-alabaster-200/80 bg-white/90 shadow-[0_12px_40px_rgba(10,10,10,0.14)] backdrop-blur-md"
+  >
+    <div class="h-1 w-full bg-monza-600" aria-hidden="true"></div>
+
+    <div class="relative px-5 pt-5 pb-5 sm:px-6 sm:pt-6 sm:pb-6">
+      <button
+        type="button"
+        id="close-btn"
+        class="absolute top-3 right-3 inline-flex size-9 items-center justify-center rounded-full text-cod-gray-500 transition hover:bg-alabaster-100 hover:text-cod-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-monza-600"
+        aria-label="Rechazar cookies no esenciales"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <p class="mb-2 text-[0.7rem] font-semibold tracking-[0.22em] text-monza-600 uppercase">
+        Privacidad
+      </p>
+      <h3 id="cookie-title" class="pr-10 text-xl font-extrabold tracking-tight text-cod-gray-950 sm:text-2xl">
+        Uso de cookies
+      </h3>
+      <p id="cookie-desc" class="mt-2 text-sm leading-relaxed text-cod-gray-600">
+        Usamos cookies para mejorar tu experiencia, medir el rendimiento del sitio y, si lo
+        aceptas, personalizar contenido. Puedes aceptar todas o continuar solo con las esenciales.
+      </p>
+
+      <ul class="mt-4 space-y-2 border-t border-alabaster-200 pt-4 text-xs leading-relaxed text-cod-gray-500">
+        <li class="flex gap-2">
+          <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-monza-600" aria-hidden="true"></span>
+          <span><strong class="font-semibold text-cod-gray-700">Esenciales</strong> — necesarias para el sitio.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-monza-600/50" aria-hidden="true"></span>
+          <span><strong class="font-semibold text-cod-gray-700">Analíticas</strong> — nos ayudan a mejorar.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-monza-600/30" aria-hidden="true"></span>
+          <span><strong class="font-semibold text-cod-gray-700">Marketing</strong> — anuncios y contenido personalizado.</span>
+        </li>
+      </ul>
+
+      <div class="mt-5 flex flex-col gap-2 sm:flex-row-reverse sm:items-center">
+        <button
+          type="button"
+          id="action-btn"
+          class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-full bg-monza-600 px-5 text-sm font-bold tracking-wide text-white uppercase transition hover:bg-monza-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-monza-600"
+        >
+          Aceptar todas
+        </button>
+        <button
+          type="button"
+          id="reject-btn"
+          class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-full border border-alabaster-200 bg-white px-5 text-sm font-semibold text-cod-gray-800 transition hover:border-cod-gray-300 hover:bg-alabaster-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-monza-600 sm:flex-none"
+        >
+          Solo esenciales
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script is:inline>
+  const KEY = 'cookie_consent_gtm';
+  const CONSENT_MAX_AGE = 60 * 60 * 24 * 365;
+  const popup = document.getElementById('popup');
+  const closeBtn = document.getElementById('close-btn');
+  const rejectBtn = document.getElementById('reject-btn');
+  const actionBtn = document.getElementById('action-btn');
+
+  function getConsent() {
+    try {
+      const cookie = document.cookie.split('; ').find((item) => item.startsWith(KEY + '='));
+      if (!cookie) return null;
+      return decodeURIComponent(cookie.slice((KEY + '=').length));
+    } catch {
+      return null;
+    }
+  }
+
+  function setConsentCookie(value) {
+    try {
+      document.cookie =
+        KEY + '=' + encodeURIComponent(value) + '; path=/; max-age=' + CONSENT_MAX_AGE + '; SameSite=Lax';
+    } catch {}
+  }
+
+  function animateElement(element, keyframes, options) {
+    if (typeof element.animate !== 'function') {
+      return Promise.resolve();
+    }
+    const animation = element.animate(keyframes, options);
+    return animation.finished.catch(() => {});
+  }
+
+  function hidePopup() {
+    if (!popup) return Promise.resolve();
+    return animateElement(
+      popup,
+      { opacity: [1, 0], transform: ['translateY(0)', 'translateY(12px)'] },
+      { duration: 220, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
+    ).then(() => {
+      popup.classList.add('hidden');
+      popup.style.opacity = '';
+      popup.style.transform = '';
+    });
+  }
+
+  function showPopup() {
+    if (!popup) return;
+    popup.classList.remove('hidden');
+    animateElement(
+      popup,
+      {
+        opacity: [0, 1],
+        transform: ['translateY(16px)', 'translateY(0)'],
+      },
+      { duration: 480, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    );
+  }
+
+  function rejectConsent() {
+    hidePopup();
+    if (typeof window.cookieConsentReject === 'function') {
+      window.cookieConsentReject();
+    } else {
+      setConsentCookie('denied');
+    }
+  }
+
+  function acceptConsent() {
+    hidePopup();
+    if (typeof window.cookieConsentAccept === 'function') {
+      window.cookieConsentAccept();
+    } else {
+      setConsentCookie('granted');
+    }
+  }
+
+  if (popup && getConsent() === null) {
+    setTimeout(showPopup, 900);
+  }
+
+  closeBtn?.addEventListener('click', rejectConsent);
+  rejectBtn?.addEventListener('click', rejectConsent);
+  actionBtn?.addEventListener('click', acceptConsent);
+</script>

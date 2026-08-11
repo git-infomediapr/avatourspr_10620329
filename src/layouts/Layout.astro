@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-
+import GTMConsent from '../components/GTMConsent.astro';
+import CookiesCard from '../components/CookiesCard.astro';
 interface Props {
   title?: string;
   description?: string;
@@ -116,10 +117,12 @@ const structuredData = {
     />
     <link rel="preconnect" href="https://images.pexels.com" />
     <meta name="generator" content={Astro.generator} />
+    <GTMConsent />
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body class="min-h-screen overflow-x-hidden">
     <slot />
+    <CookiesCard />
     <script>
       import '../scripts/motion.ts';
     </script>
