@@ -128,7 +128,7 @@ function addAgencyMarkers(map, markersRef, setActiveId) {
 
 function AgencyList({ activeId, setActiveId }) {
   return (
-    <ul className="space-y-2" role="list">
+    <ul className="space-y-1.5 sm:space-y-2" role="list">
       {agencies.map((agency) => {
         const active = agency.id === activeId;
         return (
@@ -137,14 +137,14 @@ function AgencyList({ activeId, setActiveId }) {
               type="button"
               data-agency-id={agency.id}
               onClick={() => setActiveId(agency.id)}
-              className={`w-full rounded-lg border p-3.5 text-left transition sm:p-4 ${
+              className={`w-full rounded-lg border p-3 text-left transition sm:p-4 ${
                 active
                   ? 'border-monza-600 bg-white/90'
                   : 'border-transparent bg-white/55 hover:border-alabaster-200/80 hover:bg-white/75'
               }`}
             >
-              <div className="mb-1 flex items-start justify-between gap-3">
-                <h3 className="font-bold text-cod-gray-950">{agency.name}</h3>
+              <div className="mb-0.5 flex items-start justify-between gap-2 sm:mb-1 sm:gap-3">
+                <h3 className="text-sm font-bold text-cod-gray-950 sm:text-base">{agency.name}</h3>
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-monza-600">
                   <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
                   {agency.municipality}
@@ -337,7 +337,7 @@ export default function AgenciesMap() {
   return (
     <section
       id="agencias"
-      className="ava-agencies-map relative h-[min(100svh,780px)] min-h-140 w-full overflow-hidden bg-alabaster-100 lg:h-[min(88svh,780px)] lg:min-h-130"
+      className="ava-agencies-map relative h-[100svh] min-h-160 w-full overflow-hidden bg-alabaster-100 lg:h-[min(88svh,780px)] lg:min-h-130"
     >
       <div
         ref={mapContainerRef}
@@ -348,13 +348,13 @@ export default function AgenciesMap() {
 
       {/* Soft bottom fade: transparent → white */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-36 bg-linear-to-b from-transparent to-white sm:h-85"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-48 bg-linear-to-b from-transparent to-white max-lg:h-[58%] sm:h-85 lg:h-36"
         aria-hidden="true"
       />
 
       {/* Mobile: tap to unlock map (above sheet); pins remain clickable */}
       {!mapUnlocked && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[46%] z-10 flex items-center justify-center bg-cod-gray-950/30 px-6 text-center lg:hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[58%] z-10 flex items-center justify-center bg-cod-gray-950/30 px-6 text-center lg:hidden">
           <button
             type="button"
             className="pointer-events-auto rounded-full border border-white/25 bg-cod-gray-950/75 px-5 py-3 text-sm font-semibold tracking-wide text-white"
@@ -369,7 +369,7 @@ export default function AgenciesMap() {
       {mapUnlocked && (
         <button
           type="button"
-          className="absolute top-24 right-3 z-30 flex size-10 items-center justify-center rounded-full border border-alabaster-200/60 bg-white/80 text-cod-gray-900 backdrop-blur-sm lg:hidden"
+          className="absolute top-24 right-3 z-30 flex size-11 items-center justify-center rounded-full border border-alabaster-200/60 bg-white/80 text-cod-gray-900 backdrop-blur-sm lg:hidden"
           onClick={() => lockMap()}
           aria-label="Desactivar navegación del mapa"
         >
@@ -379,21 +379,26 @@ export default function AgenciesMap() {
 
       {/* Glass panel: sticky title + scrollable agency list */}
       <aside
-        className="absolute z-20 flex flex-col overflow-hidden border border-white/40 bg-white/70 backdrop-blur-sm max-lg:inset-x-0 max-lg:bottom-0 max-lg:max-h-[46%] max-lg:rounded-t-2xl max-lg:border-b-0 max-lg:px-3 max-lg:pt-2 max-lg:pb-3 lg:top-24 lg:bottom-6 lg:left-6 lg:max-h-none lg:w-[min(24rem,calc(100%-3rem))] lg:rounded-2xl lg:p-4"
+        className="absolute z-20 flex flex-col overflow-hidden border border-white/40 bg-white/70 backdrop-blur-sm max-lg:inset-x-0 max-lg:bottom-0 max-lg:h-[58%] max-lg:max-h-[58%] max-lg:rounded-t-2xl max-lg:border-b-0 max-lg:px-3 max-lg:pt-1.5 max-lg:pb-3 lg:top-24 lg:bottom-6 lg:left-6 lg:h-auto lg:max-h-none lg:w-[min(24rem,calc(100%-3rem))] lg:rounded-2xl lg:p-4"
         aria-label="Red de agencias aliadas"
       >
         <div
-          className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-cod-gray-300/80 lg:hidden"
+          className="mx-auto mb-1.5 h-1 w-10 shrink-0 rounded-full bg-cod-gray-300/80 lg:hidden"
           aria-hidden="true"
         />
-        <header className="mb-3 shrink-0 border-b border-cod-gray-200/50 px-1 pb-3">
-          <h2 className="mb-2 text-xl font-extrabold tracking-tight text-cod-gray-950 sm:text-2xl">
+        <header className="mb-2 shrink-0 border-b border-cod-gray-200/50 px-1 pb-2 lg:mb-3 lg:pb-3">
+          <h2 className="mb-1 text-lg font-extrabold tracking-tight text-cod-gray-950 sm:mb-2 sm:text-2xl lg:text-2xl">
             Red de Agencias Aliadas
           </h2>
-          <p className="text-sm leading-relaxed text-cod-gray-700">
-            ¡Contáctate con tu agencia de viajes aliada! Nuestra red de agencias está preparada para
-            ayudarte a seleccionar el destino ideal, aprovechar las mejores ofertas de viajes y
-            planificar unas vacaciones inolvidables con el respaldo de AVA Tours.
+          <p className="text-xs leading-snug text-cod-gray-700 sm:text-sm sm:leading-relaxed lg:text-sm">
+            <span className="lg:hidden">
+              Elige una agencia aliada para planificar tu viaje con el respaldo de AVA Tours.
+            </span>
+            <span className="hidden lg:inline">
+              ¡Contáctate con tu agencia de viajes aliada! Nuestra red de agencias está preparada para
+              ayudarte a seleccionar el destino ideal, aprovechar las mejores ofertas de viajes y
+              planificar unas vacaciones inolvidables con el respaldo de AVA Tours.
+            </span>
           </p>
         </header>
         <div
@@ -418,7 +423,7 @@ export default function AgenciesMap() {
           }
           .ava-agencies-map .maplibregl-ctrl-bottom-right,
           .ava-agencies-map .maplibregl-ctrl-bottom-left {
-            margin-bottom: 48%;
+            margin-bottom: 60%;
           }
         }
         .ava-agencies-map .maplibregl-cooperative-gesture-screen {

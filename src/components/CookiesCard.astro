@@ -8,8 +8,6 @@
 <div id="popup-root" class="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-4 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md sm:p-0">
   <aside
     id="popup"
-    role="dialog"
-    aria-modal="false"
     aria-labelledby="cookie-title"
     aria-describedby="cookie-desc"
     class="pointer-events-auto hidden w-full overflow-hidden rounded-2xl border border-alabaster-200/80 bg-white/90 shadow-[0_12px_40px_rgba(10,10,10,0.14)] backdrop-blur-md"
@@ -160,7 +158,7 @@
   }
 
   if (popup && getConsent() === null) {
-    setTimeout(showPopup, 900);
+    setTimeout(showPopup, 3500);
   }
 
   closeBtn?.addEventListener('click', rejectConsent);

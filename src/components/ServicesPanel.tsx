@@ -60,6 +60,9 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
             alt=""
             decoding={i === 0 ? 'sync' : 'async'}
             fetchPriority={i === 0 ? 'high' : 'low'}
+            width={1600}
+            height={900}
+            sizes="100vw"
             className="absolute inset-0 h-full w-full object-cover"
             initial={false}
             animate={{ opacity: i === active ? 1 : 0 }}
@@ -80,19 +83,17 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
           </p>
         </header>
 
-        {/* Desktop tabs */}
-        <div className="hidden max-w-xl lg:block" role="tablist" aria-label="Servicios AVA Tours">
+        {/* Desktop accordion (avoids invalid tablist nesting) */}
+        <div className="hidden max-w-xl lg:block" aria-label="Servicios AVA Tours">
           {services.map((service, i) => {
             const isActive = i === active;
             return (
               <div key={service.id} className="border-t border-white/10 last:border-b">
                 <button
                   type="button"
-                  role="tab"
                   id={`service-tab-${service.id}`}
-                  aria-selected={isActive}
+                  aria-expanded={isActive}
                   aria-controls={`service-panel-${service.id}`}
-                  tabIndex={isActive ? 0 : -1}
                   onClick={() => goTo(i)}
                   onKeyDown={(e) => {
                     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -115,7 +116,7 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
                       document.getElementById(`service-tab-${services[count - 1].id}`)?.focus();
                     }
                   }}
-                  className="group flex w-full items-start gap-4 py-5 text-left transition-colors"
+                  className="group flex min-h-11 w-full items-start gap-4 py-5 text-left transition-colors"
                 >
                   <span
                     className={`mt-1.5 h-10 w-1 shrink-0 rounded-full transition-colors ${
@@ -137,7 +138,7 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
                     <motion.div
                       key="desc"
                       id={`service-panel-${service.id}`}
-                      role="tabpanel"
+                      role="region"
                       aria-labelledby={`service-tab-${service.id}`}
                       initial={reduceMotion ? false : { opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
@@ -168,7 +169,7 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
                   aria-controls={`service-acc-${service.id}`}
                   id={`service-acc-btn-${service.id}`}
                   onClick={() => goTo(i)}
-                  className="flex w-full items-start gap-3 py-5 text-left"
+                  className="flex min-h-11 w-full items-start gap-3 py-5 text-left"
                 >
                   <span
                     className={`mt-1.5 h-8 w-1 shrink-0 rounded-full ${
