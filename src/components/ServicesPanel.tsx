@@ -2,6 +2,11 @@ import { useEffect, useEffectEvent, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { services as defaultServices } from '../data/services.js';
 
+export type ServiceCta = {
+  label: string;
+  href: string;
+};
+
 export type ServiceItem = {
   id: string;
   number: string;
@@ -9,6 +14,7 @@ export type ServiceItem = {
   description: string;
   image: string;
   imageAlt: string;
+  ctas?: ServiceCta[];
 };
 
 type ServicesPanelProps = {
@@ -146,9 +152,26 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
                       transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden"
                     >
-                      <p className="pb-5 pl-5 text-base leading-relaxed text-white/70">
-                        {service.description}
-                      </p>
+                      <div className="space-y-4 pb-5 pl-5">
+                        <p className="text-base leading-relaxed text-white/70">
+                          {service.description}
+                        </p>
+                        {service.ctas?.length ? (
+                          <div className="flex flex-wrap gap-3">
+                            {service.ctas.map((cta) => (
+                              <a
+                                key={cta.href}
+                                href={cta.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex min-h-11 items-center justify-center rounded-full bg-monza-600 px-5 text-sm font-bold tracking-wide text-white uppercase transition hover:bg-monza-700"
+                              >
+                                {cta.label}
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -208,6 +231,21 @@ export default function ServicesPanel({ services = defaultServices }: ServicesPa
                         <p className="text-sm leading-relaxed text-white/70 sm:text-base">
                           {service.description}
                         </p>
+                        {service.ctas?.length ? (
+                          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                            {service.ctas.map((cta) => (
+                              <a
+                                key={cta.href}
+                                href={cta.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex min-h-11 items-center justify-center rounded-full bg-monza-600 px-5 text-sm font-bold tracking-wide text-white uppercase transition hover:bg-monza-700"
+                              >
+                                {cta.label}
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </motion.div>
                   )}

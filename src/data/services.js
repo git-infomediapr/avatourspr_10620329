@@ -35,4 +35,23 @@ export const services = [
     image: '/servicios/ofertas.webp',
     imageAlt: 'Pasaporte y maleta listos para viajar — ofertas AVA Tours',
   },
+  {
+    id: 'explorar',
+    number: '05',
+    title: 'Encuentra el viaje ideal para ti',
+    description:
+      'Explora nuestros destinos y descubre opciones para planificar tus próximas vacaciones.',
+    image: '/servicios/paquetes.webp',
+    imageAlt: 'Destinos y vacaciones con AVA Tours',
+    ctas: [
+      {
+        label: 'Explorar destinos',
+        href: 'https://avatours.net/elige-destinos',
+      },
+      {
+        label: 'Planificar vacaciones',
+        href: 'https://avatours.net/explore-vacaciones/',
+      },
+    ],
+  },
 ];
