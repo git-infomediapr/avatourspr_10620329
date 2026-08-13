@@ -41,8 +41,8 @@ export const services = [
     title: 'Encuentra el viaje ideal para ti',
     description:
       'Explora nuestros destinos y descubre opciones para planificar tus próximas vacaciones.',
-    image: '/servicios/paquetes.webp',
-    imageAlt: 'Destinos y vacaciones con AVA Tours',
+    image: '/servicios/explorar.webp',
+    imageAlt: 'Globos aerostáticos sobre un valle al amanecer — explora destinos AVA Tours',
     ctas: [
       {
         label: 'Explorar destinos',
