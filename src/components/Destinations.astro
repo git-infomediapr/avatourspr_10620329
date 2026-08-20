@@ -1,0 +1,37 @@
+---
+import DestinationsPanel from './DestinationsPanel';
+---
+
+<section id="destinos" class="relative bg-alabaster-50 py-20 lg:py-28">
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-monza-200 to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <header data-reveal class="mb-10 max-w-2xl lg:mb-14">
+      <h2 class="text-4xl font-extrabold tracking-tight text-cod-gray-950 sm:text-5xl lg:text-[3.25rem] lg:leading-[1.05]">
+        Explora tu próximo destino
+      </h2>
+      <p class="mt-3 text-base leading-relaxed text-cod-gray-600 sm:text-lg">
+        Consulta los itinerarios disponibles y descubre las experiencias que AVA Tours tiene preparadas
+        para ti.
+      </p>
+    </header>
+
+    <div data-reveal>
+      <DestinationsPanel client:visible />
+    </div>
+  </div>
+</section>
+
+<style>
+  #destinos dialog[data-lenis-prevent]::backdrop {
+    background: rgb(10 10 10 / 0.72);
+  }
+
+  #destinos dialog[data-lenis-prevent]:not([open]) {
+    display: none;
+  }
+</style>

@@ -120,11 +120,23 @@ function addAgencyMarkers(map, markersRef, setActiveId) {
       setActiveId(agency.id);
     });
 
+    const phones = agency.phones?.length
+      ? agency.phones
+      : agency.phone
+        ? [agency.phone]
+        : [];
+    const phonesHtml = phones
+      .map(
+        (phone) =>
+          `<div style="font-size:13px;margin-bottom:2px;"><a href="tel:${phone.replace(/-/g, '')}">${phone}</a></div>`,
+      )
+      .join('');
+
     const popupHtml = `
       <div style="font-family: system-ui, sans-serif; min-width: 160px;">
         <strong style="display:block;margin-bottom:4px;">${agency.name}</strong>
         <span style="display:block;color:${COD_GRAY_600};font-size:12px;margin-bottom:6px;">${agency.municipality}</span>
-        ${agency.phone ? `<div style="font-size:13px;margin-bottom:2px;"><a href="tel:${agency.phone.replace(/-/g, '')}">${agency.phone}</a></div>` : ''}
+        ${phonesHtml}
         ${agency.email ? `<div style="font-size:13px;"><a href="mailto:${agency.email}">${agency.email}</a></div>` : ''}
       </div>
     `;
@@ -178,18 +190,23 @@ function AgencyList({ activeId, setActiveId }) {
                 </span>
               </div>
               <div className="mt-auto space-y-1 text-xs text-cod-gray-600 sm:text-sm">
-                {agency.phone ? (
-                  <p className="flex items-center gap-2">
+                {(agency.phones?.length
+                  ? agency.phones
+                  : agency.phone
+                    ? [agency.phone]
+                    : []
+                ).map((phone) => (
+                  <p key={phone} className="flex items-center gap-2">
                     <Phone className="size-3.5 shrink-0" aria-hidden="true" />
                     <a
-                      href={`tel:${agency.phone.replace(/-/g, '')}`}
+                      href={`tel:${phone.replace(/-/g, '')}`}
                       className="hover:text-monza-600"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {agency.phone}
+                      {phone}
                     </a>
                   </p>
-                ) : null}
+                ))}
                 {agency.email ? (
                   <p className="flex min-w-0 items-center gap-2">
                     <Mail className="size-3.5 shrink-0" aria-hidden="true" />
