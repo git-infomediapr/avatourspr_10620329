@@ -50,6 +50,11 @@ export default function DestinationsPanel() {
 
   const openPdf = useCallback(
     (item: ExpandingCardItem) => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      if (isMobile) {
+        window.open(item.pdfHref, '_blank', 'noopener,noreferrer');
+        return;
+      }
       setOpenItem(item);
       setScrollLocked(true);
     },

@@ -2,17 +2,17 @@ export const upcomingDestinations = [
   {
     id: 'argentina',
     title: 'Argentina',
-    subtitle: 'Ushuaia, Calafate y Perito Moreno',
-    image: '/destinos/argentina-glaciar-perito-moreno.webp',
-    imageAlt: 'Glaciar Perito Moreno, El Calafate, Argentina',
+    subtitle: 'Parque Nacional Tierra del Fuego',
+    image: '/destinos/argentina-parque-tierra-del-fuego.webp',
+    imageAlt: 'Parque Nacional Tierra del Fuego, Argentina',
     pdf: '/proximos-destinos/AVA-Tours-Argentina.pdf',
   },
   {
     id: 'italia-croacia',
     title: 'Italia y Croacia',
-    subtitle: 'Bolonia, Plitvice y el Adriático',
-    image: '/destinos/croacia-plitvice-lakes.webp',
-    imageAlt: 'Lagos de Plitvice, Croacia',
+    subtitle: 'San Marino y Monte Titano',
+    image: '/destinos/san-marino-monte-titano.webp',
+    imageAlt: 'Centro histórico de San Marino y Monte Titano',
     pdf: '/proximos-destinos/AVA-Tours-Italia-y-Croacia.pdf',
   },
   {
@@ -42,9 +42,9 @@ export const upcomingDestinations = [
   {
     id: 'suiza',
     title: 'Suiza',
-    subtitle: 'Matterhorn, Lucerna y Glacier Express',
-    image: '/destinos/suiza-matterhorn-gornergrat.webp',
-    imageAlt: 'Tren Gornergrat con el Matterhorn, Zermatt, Suiza',
+    subtitle: 'Glacier Express, Alpes suizos',
+    image: '/destinos/suiza-glacier-express.webp',
+    imageAlt: 'Glacier Express en los Alpes suizos',
     pdf: '/proximos-destinos/AVA-Tours-Suiza.pdf',
   },
 ];
