@@ -1,48 +1,14 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import {
-  Map,
-  Marker,
-  Popup,
-  NavigationControl,
-  setWorkerUrl,
-} from 'maplibre-gl';
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPin, Phone, Mail, X } from 'lucide-react';
 import { agencies } from '../data/agencies.js';
 
-setWorkerUrl(maplibreWorkerUrl);
+const MAPBOX_TOKEN =
+  'pk.eyJ1IjoibWdvbnphbGV6MjkiLCJhIjoiY210cjhwbmhpMDIxZzJ6cHl1dTkwbWkzdyJ9.VAmnbDMPO-tPdYpaRmhbYw';
 
 const MONZA_600 = '#d31224';
 const COD_GRAY_600 = '#545454';
 const PR_CENTER = { lng: -66.45, lat: 18.22 };
-
-const MAP_STYLE = {
-  version: 8,
-  name: 'AVA Carto Positron',
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-      ],
-      tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    },
-  },
-  layers: [
-    {
-      id: 'carto-tiles',
-      type: 'raster',
-      source: 'carto',
-      minzoom: 0,
-      maxzoom: 20,
-    },
-  ],
-};
+const MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -73,7 +39,7 @@ function createMarkerElement() {
   const el = document.createElement('button');
   el.type = 'button';
   el.className = 'ava-map-pin';
-  // MapLibre CSS uses .maplibregl-marker { position:absolute; top:0; left:0 }.
+  // Mapbox CSS uses .mapboxgl-marker { position:absolute; top:0; left:0 }.
   // Do NOT set position:relative here — it overrides that and stacks markers in flow
   // (each pin ends up offset by ~width * index from the popup/lngLat).
   el.style.cssText = `
@@ -109,7 +75,9 @@ function createMarkerElement() {
   return el;
 }
 
-function addAgencyMarkers(map, markersRef, setActiveId) {
+function addAgencyMarkers(mapboxgl, map, markersRef, setActiveId) {
+  const { Marker, Popup } = mapboxgl;
+
   Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
   markersRef.current = {};
 
@@ -233,9 +201,11 @@ export default function AgenciesMap() {
   const mapRef = useRef(null);
   const markersRef = useRef({});
   const listRef = useRef(null);
+  const cleanupRef = useRef(() => {});
   const [activeId, setActiveId] = useState(agencies[0]?.id ?? null);
   const [mapReady, setMapReady] = useState(false);
   const [mapUnlocked, setMapUnlocked] = useState(false);
+  const [mapSupported, setMapSupported] = useState(true);
 
   const lockMap = useEffectEvent(() => {
     const map = mapRef.current;
@@ -257,81 +227,160 @@ export default function AgenciesMap() {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const mobile = isMobileViewport();
+    let cancelled = false;
 
-    const map = new Map({
-      container: mapContainerRef.current,
-      style: MAP_STYLE,
-      center: [PR_CENTER.lng, PR_CENTER.lat],
-      zoom: 8.4,
-      attributionControl: true,
-      // Ctrl/⌘ + wheel on desktop (Google Maps style). Disabled on mobile for tap-to-unlock.
-      cooperativeGestures: true,
-      locale: {
-        'CooperativeGesturesHandler.WindowsHelpText':
-          'Mantén Ctrl y desplázate para hacer zoom en el mapa',
-        'CooperativeGesturesHandler.MacHelpText':
-          'Mantén ⌘ y desplázate para hacer zoom en el mapa',
-        'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa',
-      },
-    });
+    // Loaded dynamically (instead of a static top-level import) so that if
+    // mapbox-gl fails to load or evaluate on a given browser/device, it throws
+    // inside this handler — where we can catch it and fall back gracefully —
+    // instead of crashing the whole React island during hydration and leaving
+    // nothing rendered at all.
+    Promise.all([import('mapbox-gl'), import('mapbox-gl/dist/mapbox-gl.css')])
+      .then(([mod]) => {
+        if (cancelled || !mapContainerRef.current || mapRef.current) return;
 
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    mapRef.current = map;
+        const mapboxgl = mod.default;
 
-    if (mobile) {
-      map.cooperativeGestures.disable();
-      setMapInteractions(map, false);
-      map.getCanvas().style.touchAction = 'pan-y';
-    }
+        if (!mapboxgl.supported()) {
+          setMapSupported(false);
+          return;
+        }
 
-    const onReady = () => {
-      addAgencyMarkers(map, markersRef, setActiveId);
-      map.resize();
-      setMapReady(true);
-    };
+        mapboxgl.accessToken = MAPBOX_TOKEN;
 
-    map.on('load', onReady);
-    map.on('error', (event) => {
-      console.error('[AgenciesMap]', event?.error ?? event);
-    });
+        const mobile = isMobileViewport();
 
-    const resizeObserver = new ResizeObserver(() => {
-      map.resize();
-    });
-    resizeObserver.observe(mapContainerRef.current);
+        let map;
+        try {
+          map = new mapboxgl.Map({
+            container: mapContainerRef.current,
+            style: MAP_STYLE,
+            center: [PR_CENTER.lng, PR_CENTER.lat],
+            zoom: 8.4,
+            attributionControl: true,
+            // Ctrl/⌘ + wheel on desktop (Google Maps style). Disabled on mobile for tap-to-unlock.
+            cooperativeGestures: true,
+            locale: {
+              'ScrollZoomBlocker.CtrlMessage': 'Mantén Ctrl y desplázate para hacer zoom en el mapa',
+              'ScrollZoomBlocker.CmdMessage': 'Mantén ⌘ y desplázate para hacer zoom en el mapa',
+              'TouchPanBlocker.Message': 'Usa dos dedos para mover el mapa',
+            },
+          });
+        } catch (err) {
+          console.error('[AgenciesMap] no se pudo inicializar el mapa', err);
+          setMapSupported(false);
+          return;
+        }
 
-    const mq = window.matchMedia('(max-width: 1023px)');
-    const onViewportChange = () => {
-      const nowMobile = mq.matches;
-      if (nowMobile) {
-        map.cooperativeGestures.disable();
-        setMapInteractions(map, false);
-        map.getCanvas().style.touchAction = 'pan-y';
-        setMapUnlocked(false);
-      } else {
-        map.cooperativeGestures.enable();
-        setMapInteractions(map, true);
-        map.getCanvas().style.touchAction = '';
-        setMapUnlocked(false);
-      }
-      map.resize();
-    };
-    mq.addEventListener('change', onViewportChange);
+        mapRef.current = map;
 
-    const resizeTimers = [100, 400, 1000].map((ms) =>
-      window.setTimeout(() => map.resize(), ms),
-    );
+        // Everything below is "nice to have" on top of a working map (controls,
+        // cooperative-gesture locking, resize wiring). None of it should be able
+        // to block markers/flyTo from ever becoming available, so each piece runs
+        // in its own try/catch and the ready fallbacks are set up first.
+        let readyCalled = false;
+        const onReady = () => {
+          if (readyCalled) return;
+          readyCalled = true;
+          window.clearTimeout(readyFallbackTimer);
+          try {
+            addAgencyMarkers(mapboxgl, map, markersRef, setActiveId);
+          } catch (err) {
+            console.error('[AgenciesMap] no se pudieron crear los pines', err);
+          }
+          try {
+            map.resize();
+          } catch {
+            /* ignore */
+          }
+          setMapReady(true);
+        };
+
+        map.on('load', onReady);
+        map.once('idle', onReady);
+        const readyFallbackTimer = window.setTimeout(onReady, 4000);
+        map.on('error', (event) => {
+          console.error('[AgenciesMap]', event?.error ?? event);
+        });
+
+        try {
+          map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+        } catch (err) {
+          console.error('[AgenciesMap] no se pudo agregar el control de navegación', err);
+        }
+
+        try {
+          if (mobile) {
+            map.cooperativeGestures.disable();
+            setMapInteractions(map, false);
+            map.getCanvas().style.touchAction = 'pan-y';
+          }
+        } catch (err) {
+          console.error('[AgenciesMap] no se pudo bloquear el gesto cooperativo', err);
+        }
+
+        let resizeObserver;
+        try {
+          resizeObserver = new ResizeObserver(() => {
+            map.resize();
+          });
+          resizeObserver.observe(mapContainerRef.current);
+        } catch (err) {
+          console.error('[AgenciesMap] ResizeObserver no disponible', err);
+        }
+
+        const mq = window.matchMedia('(max-width: 1023px)');
+        const onViewportChange = () => {
+          try {
+            const nowMobile = mq.matches;
+            if (nowMobile) {
+              map.cooperativeGestures.disable();
+              setMapInteractions(map, false);
+              map.getCanvas().style.touchAction = 'pan-y';
+              setMapUnlocked(false);
+            } else {
+              map.cooperativeGestures.enable();
+              setMapInteractions(map, true);
+              map.getCanvas().style.touchAction = '';
+              setMapUnlocked(false);
+            }
+            map.resize();
+          } catch (err) {
+            console.error('[AgenciesMap] error al cambiar de viewport', err);
+          }
+        };
+        mq.addEventListener('change', onViewportChange);
+
+        const resizeTimers = [100, 400, 1000].map((ms) =>
+          window.setTimeout(() => {
+            try {
+              map.resize();
+            } catch {
+              /* ignore */
+            }
+          }, ms),
+        );
+
+        cleanupRef.current = () => {
+          mq.removeEventListener('change', onViewportChange);
+          window.clearTimeout(readyFallbackTimer);
+          resizeTimers.forEach((id) => window.clearTimeout(id));
+          resizeObserver?.disconnect();
+          Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
+          markersRef.current = {};
+          map.remove();
+          mapRef.current = null;
+          setMapReady(false);
+        };
+      })
+      .catch((err) => {
+        console.error('[AgenciesMap] no se pudo cargar mapbox-gl', err);
+        if (!cancelled) setMapSupported(false);
+      });
 
     return () => {
-      mq.removeEventListener('change', onViewportChange);
-      resizeTimers.forEach((id) => window.clearTimeout(id));
-      resizeObserver.disconnect();
-      Object.values(markersRef.current).forEach(({ marker }) => marker.remove());
-      markersRef.current = {};
-      map.remove();
-      mapRef.current = null;
-      setMapReady(false);
+      cancelled = true;
+      cleanupRef.current();
+      cleanupRef.current = () => {};
     };
   }, []);
 
@@ -355,7 +404,7 @@ export default function AgenciesMap() {
 
     Object.entries(markersRef.current).forEach(([id, { marker, el }]) => {
       const isActive = id === activeId;
-      // Scale the inner dot only — never el.style.transform (MapLibre owns it).
+      // Scale the inner dot only — never el.style.transform (Mapbox owns it).
       const dot = el.querySelector('.ava-map-pin-dot');
       if (dot instanceof HTMLElement) {
         dot.style.transform = `scale(${isActive ? 1.35 : 1})`;
@@ -400,7 +449,16 @@ export default function AgenciesMap() {
         className="absolute inset-0 h-full w-full"
         role="region"
         aria-label="Mapa de agencias afiliadas en Puerto Rico"
-      />
+      >
+        {!mapSupported && (
+          <div className="flex h-full w-full items-center justify-center bg-alabaster-100 px-6 text-center">
+            <p className="max-w-xs text-sm text-cod-gray-600">
+              Tu navegador no pudo cargar el mapa interactivo. Encuentra tu agencia en la lista de
+              abajo.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Soft bottom fade — compact on mobile so the map stays dominant */}
       <div
@@ -409,7 +467,7 @@ export default function AgenciesMap() {
       />
 
       {/* Mobile: tap to unlock map (above carousel bar); pins remain clickable */}
-      {!mapUnlocked && (
+      {mapSupported && !mapUnlocked && (
         <div className="pointer-events-none absolute inset-x-0 top-0 bottom-44 z-10 flex items-center justify-center bg-cod-gray-950/25 px-6 text-center lg:hidden">
           <button
             type="button"
@@ -422,7 +480,7 @@ export default function AgenciesMap() {
       )}
 
       {/* Mobile: lock map again */}
-      {mapUnlocked && (
+      {mapSupported && mapUnlocked && (
         <button
           type="button"
           className="absolute top-24 left-3 z-30 flex size-11 items-center justify-center rounded-full border border-alabaster-200/60 bg-white/80 text-cod-gray-900 shadow-sm backdrop-blur-sm lg:hidden"
@@ -459,45 +517,37 @@ export default function AgenciesMap() {
       </aside>
 
       <style>{`
-        .ava-agencies-map .maplibregl-ctrl-top-right {
+        .ava-agencies-map .mapboxgl-ctrl-top-right {
           top: 6.5rem;
           right: 0.75rem;
         }
         @media (max-width: 1023px) {
-          .ava-agencies-map .maplibregl-ctrl-top-right {
+          .ava-agencies-map .mapboxgl-ctrl-top-right {
             top: 5.5rem;
             right: 0.5rem;
           }
-          .ava-agencies-map .maplibregl-ctrl-bottom-right,
-          .ava-agencies-map .maplibregl-ctrl-bottom-left {
+          .ava-agencies-map .mapboxgl-ctrl-bottom-right,
+          .ava-agencies-map .mapboxgl-ctrl-bottom-left {
             margin-bottom: 11.5rem;
           }
-          .ava-agencies-map .maplibregl-popup {
+          .ava-agencies-map .mapboxgl-popup {
             max-width: min(260px, calc(100vw - 2rem)) !important;
           }
         }
-        .ava-agencies-map .maplibregl-cooperative-gesture-screen {
-          /* Full hit-area stays, but no full-bleed dim — only the centered chip is dark */
+        .ava-agencies-map .mapboxgl-scroll-zoom-blocker,
+        .ava-agencies-map .mapboxgl-touch-pan-blocker {
           background: transparent !important;
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
-          pointer-events: none;
-        }
-        .ava-agencies-map .maplibregl-cooperative-gesture-screen .maplibregl-desktop-message,
-        .ava-agencies-map .maplibregl-cooperative-gesture-screen .maplibregl-mobile-message {
           color: #fff;
-          background: rgba(10, 10, 10, 0.8);
           font-family: inherit;
           font-size: 0.875rem;
           font-weight: 600;
           letter-spacing: 0.01em;
           line-height: 1.35;
-          text-align: center;
-          max-width: min(22rem, calc(100% - 2rem));
-          padding: 0.85rem 1.25rem;
-          border-radius: 9999px;
-          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+        .ava-agencies-map .mapboxgl-scroll-zoom-blocker-show,
+        .ava-agencies-map .mapboxgl-touch-pan-blocker-show {
+          background: rgba(10, 10, 10, 0.55) !important;
         }
       `}</style>
     </section>
