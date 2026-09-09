@@ -213,6 +213,23 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
                     <span className="absolute inset-0 -m-1.5 animate-ping rounded-full bg-monza-600/40" />
                   </button>
 
+                  {/* Mobile/tablet: a plain name tag instead of the full card, which is too heavy for touch */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.14, ease: 'easeOut' }}
+                        className={`absolute z-40 rounded-full bg-cod-gray-950 px-2.5 py-1 text-[10px] font-bold tracking-wide whitespace-nowrap text-white uppercase shadow-sm lg:hidden ${cardAlignClasses[placement.align]} ${
+                          placement.vertical === 'above' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'
+                        }`}
+                      >
+                        {item.title}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+
                   <AnimatePresence>
                     {isActive && (
                       <motion.div
@@ -220,7 +237,7 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.94 }}
                         transition={{ duration: 0.16, ease: 'easeOut' }}
-                        className={`absolute z-40 w-56 ${cardAlignClasses[placement.align]} ${
+                        className={`absolute z-40 hidden w-56 lg:block ${cardAlignClasses[placement.align]} ${
                           placement.vertical === 'above'
                             ? 'bottom-[calc(100%+0.75rem)]'
                             : 'top-[calc(100%+0.75rem)]'
