@@ -1,83 +1,58 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X } from 'lucide-react';
-import { originPoint, upcomingDestinations } from '../data/upcomingDestinations.js';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import {
+  Building2,
+  Landmark,
+  Mountain,
+  Pyramid,
+  Snowflake,
+  Waves,
+} from 'lucide-react';
+import { ExpandingCards, type ExpandingCardItem } from './ExpandingCards';
+import { upcomingDestinations } from '../data/upcomingDestinations.js';
+import { cn } from '../lib/utils';
 
-type Destination = (typeof upcomingDestinations)[number];
-
-type DestinationsPanelProps = {
-  /** Pre-rendered dotted-map SVG markup, computed at build time (see Destinations.astro) so it
-   * never has to be generated in the visitor's browser. */
-  mapSvg: string;
+const iconById: Record<string, ExpandingCardItem['icon']> = {
+  argentina: <Waves className="size-6" aria-hidden="true" />,
+  chile: <Mountain className="size-6" aria-hidden="true" />,
+  'italia-croacia': <Landmark className="size-6" aria-hidden="true" />,
+  japon: <Mountain className="size-6" aria-hidden="true" />,
+  mexico: <Pyramid className="size-6" aria-hidden="true" />,
+  polonia: <Building2 className="size-6" aria-hidden="true" />,
+  suiza: <Snowflake className="size-6" aria-hidden="true" />,
 };
 
-type Placement = {
-  xPct: number;
-  yPct: number;
-  align: 'left' | 'center' | 'right';
-  vertical: 'above' | 'below';
-};
+const continentOrder = ['América', 'Europa', 'Asia'];
 
-function project(lat: number, lng: number) {
-  const xPct = ((lng + 180) / 360) * 100;
-  const yPct = ((90 - lat) / 180) * 100;
-  return { xPct, yPct };
-}
+const destinationsByContinent = [...upcomingDestinations].sort(
+  (a, b) => continentOrder.indexOf(a.continent) - continentOrder.indexOf(b.continent),
+);
 
-function placementFor(lat: number, lng: number): Placement {
-  const { xPct, yPct } = project(lat, lng);
-  const align = xPct < 22 ? 'left' : xPct > 78 ? 'right' : 'center';
-  const vertical = yPct < 30 ? 'below' : 'above';
-  return { xPct, yPct, align, vertical };
-}
+const cardItems: (ExpandingCardItem & { continent: string })[] = destinationsByContinent.map(
+  (item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.subtitle,
+    imgSrc: item.image,
+    imgAlt: item.imageAlt,
+    icon: iconById[item.id] ?? <Mountain className="size-6" aria-hidden="true" />,
+    pdfHref: encodeURI(item.pdf),
+    continent: item.continent,
+  }),
+);
 
-function curvedPath(start: { xPct: number; yPct: number }, end: { xPct: number; yPct: number }) {
-  const midX = (start.xPct + end.xPct) / 2;
-  const midY = Math.min(start.yPct, end.yPct) - 9;
-  return `M ${start.xPct} ${start.yPct / 2} Q ${midX} ${midY / 2} ${end.xPct} ${end.yPct / 2}`;
-}
+const continentFilters = ['Todos', ...continentOrder];
 
-const cardAlignClasses: Record<Placement['align'], string> = {
-  left: 'left-0 translate-x-0',
-  center: 'left-1/2 -translate-x-1/2',
-  right: 'right-0 left-auto translate-x-0',
-};
-
-export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
+export default function DestinationsPanel() {
   const titleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const [openItem, setOpenItem] = useState<Destination | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [openItem, setOpenItem] = useState<ExpandingCardItem | null>(null);
+  const [activeContinent, setActiveContinent] = useState<string>('Todos');
 
-  const origin = useMemo(() => project(originPoint.lat, originPoint.lng), []);
-
-  const points = useMemo(
-    () =>
-      upcomingDestinations.map((item) => ({
-        item,
-        placement: placementFor(item.lat, item.lng),
-      })),
-    [],
-  );
-
-  const continents = useMemo(() => {
-    const order: string[] = [];
-    const groups = new Map<string, Destination[]>();
-    for (const item of upcomingDestinations) {
-      if (!groups.has(item.continent)) {
-        groups.set(item.continent, []);
-        order.push(item.continent);
-      }
-      groups.get(item.continent)!.push(item);
-    }
-    return order.map((continent) => ({ continent, items: groups.get(continent)! }));
-  }, []);
-
-  const mapDataUri = useMemo(
-    () => `data:image/svg+xml;utf8,${encodeURIComponent(mapSvg)}`,
-    [mapSvg],
-  );
+  const filteredItems =
+    activeContinent === 'Todos'
+      ? cardItems
+      : cardItems.filter((item) => item.continent === activeContinent);
 
   const setScrollLocked = useCallback((locked: boolean) => {
     document.body.classList.toggle('overflow-hidden', locked);
@@ -93,11 +68,10 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
   }, [setScrollLocked]);
 
   const openPdf = useCallback(
-    (item: Destination) => {
-      const pdfHref = encodeURI(item.pdf);
+    (item: ExpandingCardItem) => {
       const isMobile = window.matchMedia('(max-width: 767px)').matches;
       if (isMobile) {
-        window.open(pdfHref, '_blank', 'noopener,noreferrer');
+        window.open(item.pdfHref, '_blank', 'noopener,noreferrer');
         return;
       }
       setOpenItem(item);
@@ -111,7 +85,7 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
     const dialog = dialogRef.current;
     const frame = frameRef.current;
     if (!dialog || !frame) return;
-    frame.src = encodeURI(openItem.pdf);
+    frame.src = openItem.pdfHref;
     if (!dialog.open) dialog.showModal();
   }, [openItem]);
 
@@ -134,216 +108,34 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
   }, [setScrollLocked]);
 
   return (
-    <div className="relative left-1/2 w-screen -translate-x-1/2">
-      {/* Below xl the map is full-width at a true 2:1 ratio, i.e. exactly 50vw tall — so the section
-          height tracks that (50vw) plus a fixed allowance for the floating panel underneath, and the
-          map is never taller than the space actually reserved for it. */}
-      <div className="relative h-[calc(50vw+300px)] w-full overflow-hidden bg-alabaster-50 2xl:h-[min(88svh,780px)] 2xl:min-h-130">
-        {/* Map layer: kept at its true 2:1 ratio; top-aligned on mobile (where it's sized by width, so
-            centering it would leave a large empty gap above), right-aligned from xl so it hugs the right
-            edge and any leftover letterbox gap falls behind the floating panel instead of splitting both sides */}
-        <div className="absolute inset-0 flex items-start justify-center 2xl:items-center 2xl:justify-end">
-          <div className="relative aspect-2/1 h-auto w-full max-w-full 2xl:h-full 2xl:w-auto">
-            <div className="absolute inset-0 overflow-hidden">
-              <img
-                src={mapDataUri}
-                alt=""
-                aria-hidden="true"
-                draggable={false}
-                className="absolute inset-0 h-full w-full object-cover mask-[linear-gradient(to_bottom,transparent,white_8%,white_92%,transparent)]"
-              />
-
-              <svg
-                viewBox="0 0 100 50"
-                preserveAspectRatio="none"
-                className="pointer-events-none absolute inset-0 h-full w-full"
-                aria-hidden="true"
-              >
-                {points.map(({ item, placement }, index) => (
-                  <motion.path
-                    key={item.id}
-                    d={curvedPath(origin, placement)}
-                    fill="none"
-                    stroke="#d31224"
-                    strokeOpacity="0.85"
-                    strokeWidth="0.22"
-                    strokeLinecap="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 1.1, delay: 0.15 + index * 0.12, ease: 'easeOut' }}
-                  />
-                ))}
-              </svg>
-            </div>
-
-            {/* Origin marker: San Juan, PR */}
-            <div
-              className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${origin.xPct}%`, top: `${origin.yPct}%` }}
-            >
-              <span className="block size-2.5 rounded-full border-2 border-white bg-cod-gray-950 shadow-sm" />
-              <span className="absolute top-full left-1/2 mt-1.5 -translate-x-1/2 rounded-full bg-cod-gray-950 px-2 py-0.5 text-[10px] font-bold tracking-wide whitespace-nowrap text-white uppercase shadow-sm">
-                {originPoint.label}
-              </span>
-            </div>
-
-            {points.map(({ item, placement }) => {
-              const isActive = activeId === item.id;
-              return (
-                <div
-                  key={item.id}
-                  className={`absolute ${isActive ? 'z-40' : 'z-20'}`}
-                  style={{ left: `${placement.xPct}%`, top: `${placement.yPct}%` }}
-                  onMouseLeave={() => setActiveId((current) => (current === item.id ? null : current))}
-                >
-                  <button
-                    type="button"
-                    className="relative -translate-x-1/2 -translate-y-1/2 rounded-full outline-offset-4 focus-visible:outline-2 focus-visible:outline-monza-600"
-                    onMouseEnter={() => setActiveId(item.id)}
-                    onFocus={() => setActiveId(item.id)}
-                    onClick={() => setActiveId(item.id)}
-                    aria-expanded={isActive}
-                    aria-label={`${item.title} — ${item.subtitle}`}
-                  >
-                    <span
-                      className={`block rounded-full border-2 border-white bg-monza-600 shadow-sm transition-transform duration-200 ${
-                        isActive ? 'size-3.5 scale-125' : 'size-3'
-                      }`}
-                    />
-                    <span className="absolute inset-0 -m-1.5 animate-ping rounded-full bg-monza-600/40" />
-                  </button>
-
-                  {/* Mobile/tablet: a plain name tag instead of the full card, which is too heavy for touch */}
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.span
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.14, ease: 'easeOut' }}
-                        className={`absolute z-40 rounded-full bg-cod-gray-950 px-2.5 py-1 text-[10px] font-bold tracking-wide whitespace-nowrap text-white uppercase shadow-sm lg:hidden ${cardAlignClasses[placement.align]} ${
-                          placement.vertical === 'above' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'
-                        }`}
-                      >
-                        {item.title}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.94, y: placement.vertical === 'above' ? 6 : -6 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.94 }}
-                        transition={{ duration: 0.16, ease: 'easeOut' }}
-                        className={`absolute z-40 hidden w-56 lg:block ${cardAlignClasses[placement.align]} ${
-                          placement.vertical === 'above'
-                            ? 'bottom-[calc(100%+0.75rem)]'
-                            : 'top-[calc(100%+0.75rem)]'
-                        }`}
-                      >
-                        <div className="overflow-hidden rounded-xl border border-alabaster-200 bg-white shadow-[0_12px_30px_rgba(10,10,10,0.18)]">
-                          <img
-                            src={item.image}
-                            alt={item.imageAlt}
-                            width={400}
-                            height={240}
-                            className="h-24 w-full object-cover"
-                          />
-                          <div className="p-3">
-                            <p className="text-[10px] font-bold tracking-wide text-monza-600 uppercase">
-                              {item.continent}
-                            </p>
-                            <h3 className="mt-0.5 text-sm font-extrabold tracking-tight text-cod-gray-950">
-                              {item.title}
-                            </h3>
-                            <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-cod-gray-600">
-                              {item.subtitle}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => openPdf(item)}
-                              className="mt-2.5 inline-flex min-h-8 w-full items-center justify-center rounded-full bg-monza-600 px-3 text-[11px] font-bold tracking-wide text-white uppercase transition hover:bg-monza-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-monza-600"
-                            >
-                              Ver itinerario
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Soft fade so the floating panel reads as anchored to the map, not just stacked on top */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40 bg-linear-to-b from-transparent to-alabaster-50 max-2xl:h-[55%] 2xl:h-36"
-          aria-hidden="true"
-        />
-
-        {/* Floating panel: continent list, mirrors the "Red de Agencias Aliadas" layout */}
-        <aside
-          className="absolute z-50 flex flex-col overflow-hidden border border-white/40 bg-white/85 backdrop-blur-sm max-2xl:inset-x-0 max-2xl:bottom-0 max-2xl:max-h-[60%] max-2xl:rounded-t-2xl max-2xl:border-b-0 max-2xl:px-3 max-2xl:pt-3 max-2xl:pb-[max(0.75rem,env(safe-area-inset-bottom))] 2xl:top-8 2xl:bottom-8 2xl:left-8 2xl:w-[min(22rem,calc(100%-4rem))] 2xl:rounded-2xl 2xl:bg-white/80 2xl:p-5"
-          aria-label="Destinos por continente"
-        >
-          <div
-            data-lenis-prevent
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-3 pb-1 touch-pan-x overscroll-x-contain scrollbar-none 2xl:min-h-0 2xl:flex-1 2xl:flex-col 2xl:gap-5 2xl:overflow-x-visible 2xl:overflow-y-auto 2xl:px-0 2xl:pb-0"
-            role="list"
+    <div className="flex w-full flex-col items-stretch">
+      <div role="tablist" aria-label="Filtrar por continente" className="mb-6 flex flex-wrap gap-2">
+        {continentFilters.map((continent) => (
+          <button
+            key={continent}
+            type="button"
+            role="tab"
+            aria-selected={activeContinent === continent}
+            onClick={() => setActiveContinent(continent)}
+            className={cn(
+              'min-h-10 rounded-full border px-4 text-sm font-bold tracking-wide uppercase transition',
+              activeContinent === continent
+                ? 'border-monza-600 bg-monza-600 text-white'
+                : 'border-alabaster-200 bg-white text-cod-gray-800 hover:border-monza-600 hover:text-monza-600',
+            )}
           >
-            {continents.map(({ continent, items }) => (
-              <div
-                key={continent}
-                className="w-[min(85vw,19rem)] shrink-0 snap-start rounded-xl border border-alabaster-200/70 bg-white/90 p-4 2xl:w-full 2xl:shrink"
-              >
-                <h3 className="mb-2.5 text-xs font-bold tracking-[0.14em] text-cod-gray-500 uppercase">
-                  {continent}
-                </h3>
-                <ul className="space-y-1" role="list">
-                  {items.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => openPdf(item)}
-                        onMouseEnter={() => setActiveId(item.id)}
-                        onMouseLeave={() =>
-                          setActiveId((current) => (current === item.id ? null : current))
-                        }
-                        className="group flex w-full items-center gap-3 rounded-xl border border-transparent p-2 text-left transition hover:border-alabaster-200 hover:bg-alabaster-50"
-                      >
-                        <img
-                          src={item.image}
-                          alt=""
-                          aria-hidden="true"
-                          width={96}
-                          height={96}
-                          className="size-12 shrink-0 rounded-lg object-cover"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-bold text-cod-gray-950">
-                            {item.title}
-                          </span>
-                          <span className="block truncate text-xs text-cod-gray-600">
-                            {item.subtitle}
-                          </span>
-                        </span>
-                        <ChevronRight
-                          className="size-4 shrink-0 text-monza-600 opacity-0 transition-opacity group-hover:opacity-100"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </aside>
+            {continent}
+          </button>
+        ))}
       </div>
+
+      <ExpandingCards
+        key={activeContinent}
+        items={filteredItems}
+        defaultActiveIndex={0}
+        onOpenPdf={openPdf}
+        className="mx-auto"
+      />
 
       <dialog
         ref={dialogRef}
@@ -365,7 +157,7 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
             </h2>
             <div className="flex shrink-0 items-center gap-2">
               <a
-                href={openItem ? encodeURI(openItem.pdf) : '#'}
+                href={openItem?.pdfHref ?? '#'}
                 download
                 target="_blank"
                 rel="noopener noreferrer"
@@ -379,7 +171,16 @@ export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
                 className="inline-flex size-10 items-center justify-center rounded-full border border-alabaster-200 text-cod-gray-800 transition hover:border-monza-600 hover:text-monza-600"
                 aria-label="Cerrar itinerario"
               >
-                <X className="size-5" aria-hidden="true" />
+                <svg
+                  className="size-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>

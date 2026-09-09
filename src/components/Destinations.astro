@@ -1,23 +1,8 @@
 ---
-import DottedMap from 'dotted-map';
 import DestinationsPanel from './DestinationsPanel';
-
-// Computed once at build time (not in the visitor's browser) so the dotted world map never
-// blocks the main thread when the section scrolls into view.
-const map = new DottedMap({
-  height: 150,
-  grid: 'diagonal',
-  projection: { name: 'equirectangular' },
-});
-const destinationsMapSvg = map.getSVG({
-  radius: 0.22,
-  color: '#a9a9a9',
-  shape: 'circle',
-  backgroundColor: '#ffffff',
-});
 ---
 
-<section id="destinos" class="relative overflow-x-hidden bg-alabaster-50 py-20 lg:py-28">
+<section id="destinos" class="relative bg-alabaster-50 py-20 lg:py-28">
   <div
     class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-monza-200 to-transparent"
     aria-hidden="true"
@@ -36,7 +21,7 @@ const destinationsMapSvg = map.getSVG({
     </header>
 
     <div data-reveal>
-      <DestinationsPanel client:visible mapSvg={destinationsMapSvg} />
+      <DestinationsPanel client:visible />
     </div>
   </div>
 </section>
