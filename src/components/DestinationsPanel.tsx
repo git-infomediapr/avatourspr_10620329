@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DottedMap from 'dotted-map';
 import { ChevronRight, X } from 'lucide-react';
 import { originPoint, upcomingDestinations } from '../data/upcomingDestinations.js';
 
 type Destination = (typeof upcomingDestinations)[number];
+
+type DestinationsPanelProps = {
+  /** Pre-rendered dotted-map SVG markup, computed at build time (see Destinations.astro) so it
+   * never has to be generated in the visitor's browser. */
+  mapSvg: string;
+};
 
 type Placement = {
   xPct: number;
@@ -38,7 +43,7 @@ const cardAlignClasses: Record<Placement['align'], string> = {
   right: 'right-0 left-auto translate-x-0',
 };
 
-export default function DestinationsPanel() {
+export default function DestinationsPanel({ mapSvg }: DestinationsPanelProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -67,20 +72,6 @@ export default function DestinationsPanel() {
       groups.get(item.continent)!.push(item);
     }
     return order.map((continent) => ({ continent, items: groups.get(continent)! }));
-  }, []);
-
-  const mapSvg = useMemo(() => {
-    const map = new DottedMap({
-      height: 150,
-      grid: 'diagonal',
-      projection: { name: 'equirectangular' },
-    });
-    return map.getSVG({
-      radius: 0.22,
-      color: '#a9a9a9',
-      shape: 'circle',
-      backgroundColor: '#ffffff',
-    });
   }, []);
 
   const mapDataUri = useMemo(
@@ -144,11 +135,15 @@ export default function DestinationsPanel() {
 
   return (
     <div className="relative left-1/2 w-screen -translate-x-1/2">
-      <div className="relative h-svh min-h-160 w-full overflow-hidden bg-alabaster-50 lg:h-[min(88svh,780px)] lg:min-h-130">
-        {/* Map layer: kept at its true 2:1 ratio; right-aligned so it hugs the right edge and any leftover
-            letterbox gap falls on the left, behind the floating panel, instead of splitting both sides */}
-        <div className="absolute inset-0 flex items-center justify-end">
-          <div className="relative aspect-2/1 h-full w-auto max-w-full">
+      {/* Below xl the map is full-width at a true 2:1 ratio, i.e. exactly 50vw tall — so the section
+          height tracks that (50vw) plus a fixed allowance for the floating panel underneath, and the
+          map is never taller than the space actually reserved for it. */}
+      <div className="relative h-[calc(50vw+300px)] w-full overflow-hidden bg-alabaster-50 2xl:h-[min(88svh,780px)] 2xl:min-h-130">
+        {/* Map layer: kept at its true 2:1 ratio; top-aligned on mobile (where it's sized by width, so
+            centering it would leave a large empty gap above), right-aligned from xl so it hugs the right
+            edge and any leftover letterbox gap falls behind the floating panel instead of splitting both sides */}
+        <div className="absolute inset-0 flex items-start justify-center 2xl:items-center 2xl:justify-end">
+          <div className="relative aspect-2/1 h-auto w-full max-w-full 2xl:h-full 2xl:w-auto">
             <div className="absolute inset-0 overflow-hidden">
               <img
                 src={mapDataUri}
@@ -269,24 +264,24 @@ export default function DestinationsPanel() {
 
         {/* Soft fade so the floating panel reads as anchored to the map, not just stacked on top */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40 bg-linear-to-b from-transparent to-alabaster-50 max-lg:h-[55%] lg:h-36"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40 bg-linear-to-b from-transparent to-alabaster-50 max-2xl:h-[55%] 2xl:h-36"
           aria-hidden="true"
         />
 
         {/* Floating panel: continent list, mirrors the "Red de Agencias Aliadas" layout */}
         <aside
-          className="absolute z-50 flex flex-col overflow-hidden border border-white/40 bg-white/85 backdrop-blur-sm max-lg:inset-x-0 max-lg:bottom-0 max-lg:max-h-[60%] max-lg:rounded-t-2xl max-lg:border-b-0 max-lg:px-3 max-lg:pt-3 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:top-8 lg:bottom-8 lg:left-8 lg:w-[min(22rem,calc(100%-4rem))] lg:rounded-2xl lg:bg-white/80 lg:p-5"
+          className="absolute z-50 flex flex-col overflow-hidden border border-white/40 bg-white/85 backdrop-blur-sm max-2xl:inset-x-0 max-2xl:bottom-0 max-2xl:max-h-[60%] max-2xl:rounded-t-2xl max-2xl:border-b-0 max-2xl:px-3 max-2xl:pt-3 max-2xl:pb-[max(0.75rem,env(safe-area-inset-bottom))] 2xl:top-8 2xl:bottom-8 2xl:left-8 2xl:w-[min(22rem,calc(100%-4rem))] 2xl:rounded-2xl 2xl:bg-white/80 2xl:p-5"
           aria-label="Destinos por continente"
         >
           <div
             data-lenis-prevent
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-3 pb-1 touch-pan-x overscroll-x-contain scrollbar-none lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-5 lg:overflow-x-visible lg:overflow-y-auto lg:px-0 lg:pb-0"
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-3 pb-1 touch-pan-x overscroll-x-contain scrollbar-none 2xl:min-h-0 2xl:flex-1 2xl:flex-col 2xl:gap-5 2xl:overflow-x-visible 2xl:overflow-y-auto 2xl:px-0 2xl:pb-0"
             role="list"
           >
             {continents.map(({ continent, items }) => (
               <div
                 key={continent}
-                className="w-[min(85vw,19rem)] shrink-0 snap-start rounded-xl border border-alabaster-200/70 bg-white/90 p-4 lg:w-full lg:shrink"
+                className="w-[min(85vw,19rem)] shrink-0 snap-start rounded-xl border border-alabaster-200/70 bg-white/90 p-4 2xl:w-full 2xl:shrink"
               >
                 <h3 className="mb-2.5 text-xs font-bold tracking-[0.14em] text-cod-gray-500 uppercase">
                   {continent}
