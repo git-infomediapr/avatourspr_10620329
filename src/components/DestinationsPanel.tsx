@@ -17,6 +17,7 @@ const iconById: Record<string, ExpandingCardItem['icon']> = {
   'italia-croacia': <Landmark className="size-6" aria-hidden="true" />,
   japon: <Mountain className="size-6" aria-hidden="true" />,
   mexico: <Pyramid className="size-6" aria-hidden="true" />,
+  peru: <Mountain className="size-6" aria-hidden="true" />,
   polonia: <Building2 className="size-6" aria-hidden="true" />,
   suiza: <Snowflake className="size-6" aria-hidden="true" />,
 };

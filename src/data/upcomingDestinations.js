@@ -25,6 +25,17 @@ export const upcomingDestinations = [
     lng: -100.32200832110756,
   },
   {
+    id: 'peru',
+    title: 'Perú',
+    subtitle: 'Machu Picchu, Cusco y Lago Titicaca',
+    continent: 'América',
+    image: '/destinos/peru-machu-picchu.webp',
+    imageAlt: 'Ciudadela de Machu Picchu, Perú',
+    pdf: '/proximos-destinos/AVA-Tours-Peru.pdf',
+    lat: -13.1631,
+    lng: -72.5450,
+  },
+  {
     id: 'mexico',
     title: 'México',
     subtitle: 'Taxco, Puebla y despedida de año',
