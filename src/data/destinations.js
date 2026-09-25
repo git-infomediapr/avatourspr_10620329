@@ -48,4 +48,11 @@ export const destinations = [
     subtitle: 'Chalets de madera, flores y picos nevados en los Alpes.',
     image: '/destinos/1786375136186-i1rj8wd.webp',
   },
+  {
+    id: 'scotland-treasures',
+    country: 'Escocia',
+    title: 'Tesoros de Escocia',
+    subtitle: 'Castillos históricos, paisajes dramáticos y la rica cultura escocesa.',
+    image: '/destinos/Escocia-Tesoro.jpg',
+  },
 ];

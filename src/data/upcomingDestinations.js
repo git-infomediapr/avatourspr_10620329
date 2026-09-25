@@ -90,4 +90,15 @@ export const upcomingDestinations = [
     lat: 45.0116,
     lng: 170.7681,
   },
+  {
+    id: 'escocia',
+    title: 'Escocia',
+    subtitle: 'Tesoros de Escocia',
+    continent: 'Europa',
+    image: '/destinos/Escocia-Tesoro.jpg',
+    imageAlt: 'Tesoros de Escocia',
+    pdf: '/proximos-destinos/AVA-Tours-Tesoros de Escocia.pdf',
+    lat: 55.9533,
+    lng: -3.1883,
+  },
 ];
